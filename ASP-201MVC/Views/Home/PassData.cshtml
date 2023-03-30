@@ -26,3 +26,19 @@
     - На початку представлення додаємо інструкцію &commat;model і зазначаємо її тип<br />
     - У тілі представлення звертаємось до моделі через властивість Model
 </p>
+
+    <table style="border: 1px solid black; width:600px">
+       <tr><th>№</th><th>Name</th><th>Price</th></tr>
+    @for (int i = 0; i < Model.Products.Count; i++)
+    {
+        @if (i % 2 == 0)
+        {
+                          <tr style="border: 1px solid black; background-color: gray;"><td>@(i + 1)</td><td>@Model.Products[i].Name</td><td>@Model.Products[i].Price.ToString("0.00")</td></tr>
+        }
+        else
+        {
+                          <tr style="border: 1px solid black;"><td>@(i + 1)</td><td>@Model.Products[i].Name</td><td>@Model.Products[i].Price.ToString("0.00")</td></tr>
+        }
+
+    }
+</table>
