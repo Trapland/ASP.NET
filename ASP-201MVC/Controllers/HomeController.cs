@@ -28,15 +28,38 @@ namespace ASP_201MVC.Controllers
 
             return View();
         }
+        public IActionResult Razor()
+        {
+            return View();
+        }
         public IActionResult URL()
         {
             ViewBag.bagdata = "Data in ViewBag";     // Способи передачі даних
             ViewData["data"] = "Data in ViewData";   // до представлення
             return View();
         }
+        public IActionResult PassData()
+        {
+            Models.Home.PassDataModel model = new()
+            {
+                Header = "Моделі",
+                Title = "Моделі передачі даних",
+                Products = new()
+                {
+                    new() {Name = "Кабель", Price = 20 },
+                    new() {Name = "Миша", Price = 420 },
+                    new() {Name = "Серветки", Price = 14 },
+                    new() {Name = "Наліпка", Price = 45 },
+                    new() {Name = "Клавіатура", Price = 2100.22 },
+                    new() {Name = "Монітор", Price = 54320 },
+                    new() {Name = "Болт", Price = 7.50 }
+                }
+            };
+            return View(model);
+        }
         public IActionResult Privacy()
         {
-            return View();
+            return null;
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
