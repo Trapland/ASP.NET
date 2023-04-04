@@ -1,7 +1,7 @@
 ﻿@model ASP_201MVC.Models.Home.Product
 
 <div class="card" style="width: 18rem;">
-  <img class="card-img-top" src="/img/img4.jpg" alt="Card image cap">
+  <img class="card-img-top" src=@(Model.Src ?? "/img/img6.jpg") alt="Card image cap">
   <div class="card-body">
     <h5 class="card-title">@Model.Name</h5>
     <p class="card-text">

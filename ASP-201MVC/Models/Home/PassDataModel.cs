@@ -14,5 +14,7 @@
         public String Name { get; set; } = null!;
 
         public Double Price { get; set; }
+
+        public String Src { get; set; } = null!;
     }
 }
