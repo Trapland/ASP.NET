@@ -57,6 +57,25 @@ namespace ASP_201MVC.Controllers
             };
             return View(model);
         }
+        public IActionResult DisplayTemplates()
+        {
+            Models.Home.PassDataModel model = new()
+            {
+                Header = "Шаблони",
+                Title = "Шаблони відображення даних",
+                Products = new()
+                {
+                    new() {Name = "Кабель", Price = 20 },
+                    new() {Name = "Миша", Price = 420 },
+                    new() {Name = "Серветки", Price = 14 },
+                    new() {Name = "Наліпка", Price = 45 },
+                    new() {Name = "Клавіатура", Price = 2100.22 },
+                    new() {Name = "Монітор", Price = 54320 },
+                    new() {Name = "Болт", Price = 7.50 }
+                }
+            };
+            return View(model);
+        }
         public IActionResult Privacy()
         {
             return null;

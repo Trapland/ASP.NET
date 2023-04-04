@@ -1,0 +1,33 @@
+﻿@model ASP_201MVC.Models.Home.PassDataModel
+
+@{
+    ViewData["Title"] = @Model.Header;
+}
+
+<div class="text-center">
+    <h1 class="display-4">@Model.Title</h1>
+
+</div>
+<p>
+    Шаблони відображення (DisplayTemplates) дозволяють уніфікувати спосіб
+    відображення певних типів даних, як основних, на зразок String, так і
+    користувацьких типів, як-то Product. Це зменшує кількість коду,
+    прибирає повторюваність коду та "централізує" зміни.
+
+
+</p>
+
+<p>
+    Шаблони відображення поміщуються у папку DisplayTemplates (назва важлива)
+    розміщену у Views/[Controller]. Назва шаблону - [тип.даних].cshtml
+
+
+</p>
+
+@Html.DisplayFor(m => m.Products[0])
+
+<p>
+
+
+
+</p>
