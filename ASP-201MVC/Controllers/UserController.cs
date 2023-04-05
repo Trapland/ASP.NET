@@ -15,7 +15,15 @@ namespace ASP_201MVC.Controllers
         }
         public ActionResult Register(Registration registrationModel)
         {
-            ViewData["regModel"] = registrationModel;
+            bool isModelValid = true;
+            RegisterValidationResult registerValidation = new();
+
+            if(String.IsNullOrEmpty(registrationModel.Login)) 
+            {
+                registerValidation.LoginMessage = "Логін не може бути порожним";
+                isModelValid= false;
+            }
+            ViewData["regModel"] = registerValidation;
 
             // спосіб перейти на View з іншою назвою, ніж метод
             return View("Registration");
