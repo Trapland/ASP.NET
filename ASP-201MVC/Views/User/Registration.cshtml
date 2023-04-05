@@ -1,26 +1,83 @@
-﻿@{
+﻿@model ASP_201MVC.Models.User.Registration
+@using ASP_201MVC.Models.User
+@{
     ViewData["Title"] = "Registration Page";
 }
-<section class="registration-container">
+<form method="post" asp-controller="User" asp-action="Register" class="registration-container">
   <div class="form-group" style="width: 300px">
-    <label for="exampleDropdownFormEmail2">Login</label>
-    <input type="email" class="form-control" placeholder="Login">
+        <label asp-for="Login">Login</label>
+    <input type="text" asp-for="Login" class="form-control" placeholder="Choose your login">
   </div>
   <div class="form-group" style="width: 300px">
-    <label for="exampleDropdownFormPassword2">Password</label>
-    <input type="password" class="form-control" placeholder="Password">
+        <label asp-for="Password">Password</label>
+        <input type="password" asp-for="Password" class="form-control" placeholder="Input your password">
   </div>
     <div class="form-group" style="width: 300px">
-    <label for="exampleDropdownFormPassword2">Confirm Password</label>
-    <input type="password" class="form-control" placeholder="Password">
+        <label asp-for="RepeatPassword">Confirm Password</label>
+        <input type="password" asp-for="RepeatPassword" class="form-control" placeholder="Repeat Password">
   </div>
     <div class="form-group" style="width: 300px">
-    <label for="exampleDropdownFormEmail2">Name</label>
-    <input type="email" class="form-control" placeholder="Name">
+    <label asp-for="Name">Name</label>
+    <input type="text" asp-for="Name" class="form-control" placeholder="Name">
   </div>
       <div class="form-group" style="width: 300px">
-    <label for="exampleDropdownFormEmail2">E-mail address</label>
-    <input type="email" class="form-control" placeholder="email@example.com">
+        <label asp-for="Email">E-mail address</label>
+        <input type="email" asp-for="Email" class="form-control" placeholder="email@example.com">
+
   </div>
+    <div class="form-check" style="width: 300px">
+        <input type="checkbox" asp-for="IsAgree" class="form-check-input">
+        <label asp-for="IsAgree" class="form-check-label">Check me out</label>
+    </div>
   <button type="submit" class="btn btn-primary" style="margin-top: 10px">Sign in</button>
-  </section>
+  </form>
+
+@if (ViewData["regModel"] is Registration registration)
+{
+    <p>
+        Передані дані <br />
+        @registration.Login<br />
+        @registration.Password<br />
+        @registration.RepeatPassword<br />
+        @registration.Email<br />
+        @registration.Name<br />
+    </p>
+}
+
+<hr/>
+<h2>Щодо HTML форм</h2>
+<p>
+    Що таке форма?
+    Це засіб HTML/браузера відправляти дані. Форму можна вважати розширенням поняття
+    "посилання", яке окрім переходу на задану адресу також пересилає на неї дані
+    (долучає дані до запиту, що формується на цю адресу). Відправлення форми, як і
+    перехід за посиланням, руйнує дану сторінку і створює нову з відповіді на запит.
+</p>
+
+<p>
+    Форма обмежується тегом &lt;form>, на сторінці може бути довільна кількість форм,
+    кожна форма включає у запит тільки ті дані, що належать її контенту (між
+    відкритим та закртитими тегами). Кожна форма має свою адресу відправлення, тобто
+    різні форми можуть посилатись на різні адреси.
+</p>
+
+<p>
+    Спосіб передачі параметрів зазначається з атрибутів форми:<br />
+    <b>method</b> get(default) або post<br />
+    <b>enctype</b> application/x-www-form-urlencoded (default) або multipart/form-data
+    method - один із двох методів HTTP запиту(згідно з стандартом https://www.rfc-editor.org/rfc/rfc7231#page-22)
+    З точки зору форм метод регулює спосіб включення даних до HTTP-пакету <br />
+    GET: ...?Login=anon&Password=123&...<br />
+    дані включаються безпосередньо в URL, утворюючи секцію "query" (параметрів запиту)<br />
+    POST: такі саме дані (?Login=anon&Password=123&...) включаються у тіло запиту. 
+    У складі URL вони не відображаються, для їх аналізу слід відкрити інструмент 
+    "Network" у консолі браузера, сфокусуватись на даний запит та відкрити таб
+    "Payload"<br />
+</p>
+<p>
+    Як вибрати метод форми?<br />
+    GET - коли передаються невеликі дані, що не мають секретності.
+    Головна перевага - є можливість створити постійне посилання із певними даними.
+    POST - вважається більш захищеним (насправді лише від зовнішнього погляду)
+    Головна перевага - можливість передавання великих данних, у т.ч. файлів
+</p>

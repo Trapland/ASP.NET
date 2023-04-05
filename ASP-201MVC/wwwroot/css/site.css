@@ -11,7 +11,7 @@ html {
 }
 
 body {
-    margin-bottom: 60px;
+    height: 100vh;
 }
 
 a{
@@ -19,6 +19,7 @@ a{
 }
 
 .products-container {
+
     border: 1px solid tomato;
     display: flex;
     flex-wrap: wrap;
@@ -26,6 +27,7 @@ a{
 }
 
 .registration-container {
+    height: 40vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
