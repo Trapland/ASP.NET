@@ -14,6 +14,14 @@
 
         public String IsAgreeMessage { get; set; } = null!;
 
-
+        public RegisterValidationResult()
+        {
+            LoginMessage = "";
+            PasswordMessage = "";
+            RepeatPasswordMessage = "";
+            EmailMessage = "";
+            NameMessage = "";
+            IsAgreeMessage = "";
+        }
     }
 }

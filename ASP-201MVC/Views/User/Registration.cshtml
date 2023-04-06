@@ -2,28 +2,43 @@
 @using ASP_201MVC.Models.User
 @{
     ViewData["Title"] = "Registration Page";
+    var regValid = ViewData["regValid"] as RegisterValidationResult;
 }
 <form method="post" asp-controller="User" asp-action="Register" class="registration-container">
   <div class="form-group" style="width: 300px">
         <label asp-for="Login">Login</label>
     <input type="text" asp-for="Login" class="form-control" placeholder="Choose your login">
   </div>
-  <div class="form-group" style="width: 300px">
+    <div style="width: 300px; color: tomato;">
+            @regValid.LoginMessage
+        </div>
+    <div class="form-group" style="width: 300px">
         <label asp-for="Password">Password</label>
         <input type="password" asp-for="Password" class="form-control" placeholder="Input your password">
   </div>
+    <div style="width: 300px; color: tomato;">
+        @regValid.PasswordMessage
+    </div>
     <div class="form-group" style="width: 300px">
         <label asp-for="RepeatPassword">Confirm Password</label>
         <input type="password" asp-for="RepeatPassword" class="form-control" placeholder="Repeat Password">
   </div>
+    <div style="width: 300px; color: tomato;">
+        @regValid.RepeatPasswordMessage
+    </div>
     <div class="form-group" style="width: 300px">
     <label asp-for="Name">Name</label>
-    <input type="text" asp-for="Name" class="form-control" placeholder="Name">
+        <input type="text" asp-for="Name" class="form-control" placeholder="Name">
   </div>
+    <div style="width: 300px; color: tomato;">
+        @regValid.NameMessage
+    </div>
       <div class="form-group" style="width: 300px">
         <label asp-for="Email">E-mail address</label>
         <input type="email" asp-for="Email" class="form-control" placeholder="email@example.com">
-
+        <div style="width: 300px; color: tomato;">
+            @regValid.EmailMessage
+        </div>
   </div>
     <div class="form-check" style="width: 300px">
         <input type="checkbox" asp-for="IsAgree" class="form-check-input">
