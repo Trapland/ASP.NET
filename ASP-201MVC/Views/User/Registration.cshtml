@@ -2,7 +2,7 @@
 @using ASP_201MVC.Models.User
 @{
     ViewData["Title"] = "Registration Page";
-    var regValid = ViewData["regValid"] as RegisterValidationResult;
+    var regValid = ViewData["RegisterValidationResult"] as RegisterValidationResult;
 }
 <form method="post" asp-controller="User" asp-action="Register" class="registration-container">
   <div class="form-group" style="width: 300px">
@@ -96,6 +96,15 @@
     POST - вважається більш захищеним (насправді лише від зовнішнього погляду)
     Головна перевага - можливість передавання великих данних, у т.ч. файлів
 </p>
+<p>
+    Передача файлів за допомогою форм.<br />
+    HTML форма здатна передавати файли на сервер, але для цього необхідно забезпечити
+    деякі умови:<br />
+    - у формі мають бути инпути з типом "file"<br />
+    - метод форми тільки "post"<br />
+    - enctype тільки multipart/form-data
+</p>
+<hr />
 <hr />
 <h2>ASP особливості</h2>
 <p>
@@ -108,4 +117,9 @@
 <p>
     Один з найпростіших способів забезпечити такий збіг - це використовувати
     тег-помічники з атрибутом asp-for
+</p>
+
+<p>
+    Прийом файлу від клієнту та його збереження на боці сервера називається
+    "Upload(ing)" 
 </p>

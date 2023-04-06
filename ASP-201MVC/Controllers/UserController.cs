@@ -1,6 +1,7 @@
 ﻿using ASP_201MVC.Models.User;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Mail;
+using System.Text.RegularExpressions;
 
 namespace ASP_201MVC.Controllers
 {
@@ -10,11 +11,11 @@ namespace ASP_201MVC.Controllers
         {
             return View();
         }
-        public ActionResult Registration(Registration registrationModel)
+        public ActionResult RegistrationBootstrap(/*Registration registrationModel*/)
         {
-            RegisterValidationResult registerValidation = new();
-            ViewData["regModel"] = registrationModel;
-            ViewData["regValid"] = registerValidation;
+            //RegisterValidationResult registerValidation = new();
+            //ViewData["regModel"] = registrationModel;
+            //ViewData["RegisterValidationResult"] = registerValidation;
             return View();
         }
         public ActionResult Register(Registration registrationModel)
@@ -49,26 +50,61 @@ namespace ASP_201MVC.Controllers
             }
             else
             {
-                try
-                {
-                    MailAddress m = new MailAddress(registrationModel.Email);
-                }
-                catch (FormatException)
+                string emailRegex = @"^[\w\.%+-]+@([\w-]+\.)+(\w{2,})$";
+                if(!Regex.IsMatch(registrationModel.Email, emailRegex))
                 {
                     registerValidation.EmailMessage = "Email введено не корректно";
                     isModelValid = false;
                 }
+                //try
+                //{
+                //    MailAddress m = new MailAddress(registrationModel.Email);
+                //}
+                //catch (FormatException)
+                //{
+                //    registerValidation.EmailMessage = "Email введено не корректно";
+                //    isModelValid = false;
+                //}
             }
             if (String.IsNullOrEmpty(registrationModel.Name))
             {
                 registerValidation.NameMessage = "Name не може бути порожним";
                 isModelValid = false;
             }
-            ViewData["regModel"] = registrationModel;
-            ViewData["regValid"] = registerValidation;
+            if (registrationModel.IsAgree == false)
+            {
+                registerValidation.IsAgreeMessage = "Для реєстрації слід прийняти правила сайту";
+                isModelValid = false;
+            }
+            
+            if(registrationModel.Avatar is not null)
+            {
+                if (registrationModel.Avatar.Length > 1024)
+                {
+                    String path = "wwwroot/avatars/" + registrationModel.Avatar.FileName;
+                    using FileStream fs = new(path, FileMode.Create);
+                    registrationModel.Avatar.CopyTo(fs);
+                }
+                else
+                {
+                    isModelValid = false;
+                    registerValidation.AvatarMessage = "Avatar size is too small";
+                }
+            }
+            //якщо всі перевірки пройдено то переходимо на нову сторінку
+            if(isModelValid)
+            {
+                return View(registrationModel);
+            }
+            else
+            {
+                ViewData["regModel"] = registrationModel;
+                ViewData["RegisterValidationResult"] = registerValidation;
 
-            // спосіб перейти на View з іншою назвою, ніж метод
-            return View("Registration");
+                // спосіб перейти на View з іншою назвою, ніж метод
+                return View("RegistrationBootstrap");
+            }
+
         }
     }
 }
