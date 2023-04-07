@@ -1,4 +1,5 @@
 ﻿using ASP_201MVC.Models.User;
+using ASP_201MVC.Services.Hash;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
@@ -7,6 +8,15 @@ namespace ASP_201MVC.Controllers
 {
     public class UserController : Controller
     {
+        private readonly IHashService _hashService;
+        private readonly ILogger<UserController> _logger;
+
+        public UserController(IHashService hashService, ILogger<UserController> logger)
+        {
+            _hashService = hashService;
+            _logger = logger;
+        }
+
         public ActionResult Index()
         {
             return View();
@@ -81,9 +91,13 @@ namespace ASP_201MVC.Controllers
             {
                 if (registrationModel.Avatar.Length > 1024)
                 {
-                    String path = "wwwroot/avatars/" + registrationModel.Avatar.FileName;
+                    String ext = Path.GetExtension(registrationModel.Avatar.FileName);
+                    String savedName = _hashService.Hash(registrationModel.Avatar.FileName + DateTime.Now)[..16] + ext;
+
+                    String path = "wwwroot/avatars/" + savedName;
                     using FileStream fs = new(path, FileMode.Create);
                     registrationModel.Avatar.CopyTo(fs);
+                    ViewData["savedName"] = savedName;
                 }
                 else
                 {
