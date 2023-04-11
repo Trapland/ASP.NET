@@ -1,6 +1,7 @@
 ﻿using ASP_201MVC.Models.User;
 using ASP_201MVC.Services.Hash;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing.Constraints;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
 
@@ -92,9 +93,21 @@ namespace ASP_201MVC.Controllers
                 if (registrationModel.Avatar.Length > 1024)
                 {
                     String ext = Path.GetExtension(registrationModel.Avatar.FileName);
-                    String savedName = _hashService.Hash(registrationModel.Avatar.FileName + DateTime.Now)[..16] + ext;
-
-                    String path = "wwwroot/avatars/" + savedName;
+                    String savedName = _hashService.Hash(registrationModel.Avatar.FileName + DateTime.Now + Random.Shared.Next())[..16] + ext;
+                    String folderName = "wwwroot/avatars/";
+                    IEnumerable<string> files = Directory.EnumerateFiles(folderName);
+                    String FileName = folderName + savedName;
+                    while(true)
+                    {
+                        if (files.Contains(FileName))
+                        {
+                            savedName = _hashService.Hash(registrationModel.Avatar.FileName + DateTime.Now + Random.Shared.Next())[..16] + ext;
+                            FileName = folderName + savedName;
+                            continue;
+                        }
+                        break;
+                    }
+                    String path = folderName + savedName;
                     using FileStream fs = new(path, FileMode.Create);
                     registrationModel.Avatar.CopyTo(fs);
                     ViewData["savedName"] = savedName;
