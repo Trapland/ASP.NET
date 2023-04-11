@@ -1,4 +1,5 @@
-﻿using ASP_201MVC.Models.User;
+﻿using ASP_201MVC.Data;
+using ASP_201MVC.Models.User;
 using ASP_201MVC.Services.Hash;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing.Constraints;
@@ -11,11 +12,13 @@ namespace ASP_201MVC.Controllers
     {
         private readonly IHashService _hashService;
         private readonly ILogger<UserController> _logger;
+        private readonly DataContext _dataContext;
 
-        public UserController(IHashService hashService, ILogger<UserController> logger)
+        public UserController(IHashService hashService, ILogger<UserController> logger, DataContext dataContext)
         {
             _hashService = hashService;
             _logger = logger;
+            _dataContext = dataContext;
         }
 
         public ActionResult Index()

@@ -1,4 +1,5 @@
-﻿using ASP_201MVC.Models;
+﻿using ASP_201MVC.Data;
+using ASP_201MVC.Models;
 using ASP_201MVC.Services;
 using ASP_201MVC.Services.Hash;
 using Microsoft.AspNetCore.Mvc;
@@ -13,14 +14,16 @@ namespace ASP_201MVC.Controllers
         private readonly TimeService _timeService;
         private readonly StampService _stampService;
         private readonly IHashService _hashService;
+        private readonly DataContext _dataContext;
 
-        public HomeController(ILogger<HomeController> logger, DateService dateService, TimeService timeService, StampService stampService, IHashService hashService)
+        public HomeController(ILogger<HomeController> logger, DateService dateService, TimeService timeService, StampService stampService, IHashService hashService, DataContext dataContext)
         {
             _logger = logger;
             _dateService = dateService;
             _timeService = timeService;
             _stampService = stampService;
             _hashService = hashService;
+            _dataContext = dataContext;
         }
 
         public IActionResult Index()
@@ -103,6 +106,25 @@ namespace ASP_201MVC.Controllers
             ViewData["stamp_hashcode"] = _stampService.GetHashCode();
 
             ViewData["hash_service"] = _hashService.Hash("123");
+            return View();
+        }
+
+        public ViewResult Context()
+        {
+            String Code = "";
+            for (int i = 0; i < 6; i++)
+            {
+                if(Random.Shared.Next(10) > 2)
+                {
+                    Code += Convert.ToChar(Random.Shared.Next(97, 122));
+                }
+                else
+                {
+                    Code += Random.Shared.Next(10);
+                }
+            }
+            ViewData["code"] = Code;
+            ViewData["UsersCount"] = _dataContext.Users.Count();
             return View();
         }
 
