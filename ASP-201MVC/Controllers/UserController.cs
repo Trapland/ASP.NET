@@ -1,6 +1,9 @@
 ﻿using ASP_201MVC.Data;
+using ASP_201MVC.Data.Entity;
 using ASP_201MVC.Models.User;
 using ASP_201MVC.Services.Hash;
+using ASP_201MVC.Services.Kdf;
+using ASP_201MVC.Services.Random;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing.Constraints;
 using System.Net.Mail;
@@ -13,12 +16,16 @@ namespace ASP_201MVC.Controllers
         private readonly IHashService _hashService;
         private readonly ILogger<UserController> _logger;
         private readonly DataContext _dataContext;
+        private readonly IRandomService _randomService;
+        private readonly IKdfService _kdfService;
 
-        public UserController(IHashService hashService, ILogger<UserController> logger, DataContext dataContext)
+        public UserController(IHashService hashService, ILogger<UserController> logger, DataContext dataContext, IRandomService randomService, IKdfService kdfService)
         {
             _hashService = hashService;
             _logger = logger;
             _dataContext = dataContext;
+            _randomService = randomService;
+            _kdfService = kdfService;
         }
 
         public ActionResult Index()
@@ -90,13 +97,14 @@ namespace ASP_201MVC.Controllers
                 registerValidation.IsAgreeMessage = "Для реєстрації слід прийняти правила сайту";
                 isModelValid = false;
             }
-            
+
+            String savedName = null!;
             if(registrationModel.Avatar is not null)
             {
                 if (registrationModel.Avatar.Length > 1024)
                 {
                     String ext = Path.GetExtension(registrationModel.Avatar.FileName);
-                    String savedName = _hashService.Hash(registrationModel.Avatar.FileName + DateTime.Now + Random.Shared.Next())[..16] + ext;
+                    savedName = _hashService.Hash(registrationModel.Avatar.FileName + DateTime.Now + Random.Shared.Next())[..16] + ext;
                     String folderName = "wwwroot/avatars/";
                     IEnumerable<string> files = Directory.EnumerateFiles(folderName);
                     String FileName = folderName + savedName;
@@ -124,6 +132,22 @@ namespace ASP_201MVC.Controllers
             //якщо всі перевірки пройдено то переходимо на нову сторінку
             if(isModelValid)
             {
+                String salt = _randomService.RandomString(16);
+                User user = new()
+                {
+                    Id = Guid.NewGuid(),
+                    Login = registrationModel.Login,
+                    Name = registrationModel.Name,
+                    Email = registrationModel.Email,
+                    EmailCode = _randomService.ConfirmCode(6),
+                    PasswordSalt = salt,
+                    PasswordHash = _kdfService.GetDerivedKey(registrationModel.Password,salt),
+                    Avatar = savedName,
+                    RegisterDt = DateTime.Now,
+                    LastEnterDt = null
+                };
+                _dataContext.Users.Add(user);
+                _dataContext.SaveChangesAsync();
                 return View(registrationModel);
             }
             else

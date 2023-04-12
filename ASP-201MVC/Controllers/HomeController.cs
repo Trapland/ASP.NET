@@ -111,19 +111,7 @@ namespace ASP_201MVC.Controllers
 
         public ViewResult Context()
         {
-            String Code = "";
-            for (int i = 0; i < 6; i++)
-            {
-                if(Random.Shared.Next(10) > 2)
-                {
-                    Code += Convert.ToChar(Random.Shared.Next(97, 122));
-                }
-                else
-                {
-                    Code += Random.Shared.Next(10);
-                }
-            }
-            ViewData["code"] = Code;
+            //ViewData["code"] = Code;
             ViewData["UsersCount"] = _dataContext.Users.Count();
             return View();
         }

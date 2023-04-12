@@ -18,7 +18,7 @@
 
         public DateTime RegisterDt { get; set; } // момент реєстрації
 
-        public DateTime LastEnterDt { get; set; } // останній вхід до сайту
+        public DateTime? LastEnterDt { get; set; } // останній вхід до сайту
 
         public String? EmailCode { get; set; }
 
