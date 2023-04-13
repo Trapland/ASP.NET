@@ -6,6 +6,7 @@ using ASP_201MVC.Services.Kdf;
 using ASP_201MVC.Services.Random;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing.Constraints;
+using Microsoft.Extensions.Primitives;
 using System.Net.Mail;
 using System.Text.RegularExpressions;
 
@@ -72,7 +73,7 @@ namespace ASP_201MVC.Controllers
             else
             {
                 string emailRegex = @"^[\w\.%+-]+@([\w-]+\.)+(\w{2,})$";
-                if(!Regex.IsMatch(registrationModel.Email, emailRegex))
+                if (!Regex.IsMatch(registrationModel.Email, emailRegex))
                 {
                     registerValidation.EmailMessage = "Email введено не корректно";
                     isModelValid = false;
@@ -99,7 +100,7 @@ namespace ASP_201MVC.Controllers
             }
 
             String savedName = null!;
-            if(registrationModel.Avatar is not null)
+            if (registrationModel.Avatar is not null)
             {
                 if (registrationModel.Avatar.Length > 1024)
                 {
@@ -108,7 +109,7 @@ namespace ASP_201MVC.Controllers
                     String folderName = "wwwroot/avatars/";
                     IEnumerable<string> files = Directory.EnumerateFiles(folderName);
                     String FileName = folderName + savedName;
-                    while(true)
+                    while (true)
                     {
                         if (files.Contains(FileName))
                         {
@@ -130,7 +131,7 @@ namespace ASP_201MVC.Controllers
                 }
             }
             //якщо всі перевірки пройдено то переходимо на нову сторінку
-            if(isModelValid)
+            if (isModelValid)
             {
                 String salt = _randomService.RandomString(16);
                 User user = new()
@@ -141,7 +142,7 @@ namespace ASP_201MVC.Controllers
                     Email = registrationModel.Email,
                     EmailCode = _randomService.ConfirmCode(6),
                     PasswordSalt = salt,
-                    PasswordHash = _kdfService.GetDerivedKey(registrationModel.Password,salt),
+                    PasswordHash = _kdfService.GetDerivedKey(registrationModel.Password, salt),
                     Avatar = savedName,
                     RegisterDt = DateTime.Now,
                     LastEnterDt = null
@@ -159,6 +160,45 @@ namespace ASP_201MVC.Controllers
                 return View("RegistrationBootstrap");
             }
 
+        }
+        [HttpPost]
+        public String AuthUser()
+        {
+            // альтернатертивний до моделей спосіб отримання параметрів запиту
+            StringValues loginValues = Request.Form["user-login"];
+            // колекція loginValues формується при будь-якому ключі, але для
+            // неправильних (відсутніх) ключів вона порожня
+            if (loginValues.Count == 0)
+            {
+                // немає логіну у складі полів
+                return "Missed required parameter: user-login";
+            }
+            String login = loginValues[0] ?? "";
+
+            StringValues passwordValues = Request.Form["user-password"];
+            // колекція loginValues формується при будь-якому ключі, але для
+            // неправильних (відсутніх) ключів вона порожня
+            if (passwordValues.Count == 0)
+            {
+                // немає логіну у складі полів
+                return "Missed required parameter: user-password";
+            }
+            String password = passwordValues[0] ?? "";
+
+            //шукаємо користувача за логіном
+            User? user = _dataContext.Users.Where(u => u.Login == login).FirstOrDefault();
+            if (user is not null)
+            {
+                // якщо знайшли - перевіряємо пароль(derived key)
+                if (user.PasswordHash == _kdfService.GetDerivedKey(password, user.PasswordSalt))
+                {
+                    //дані перевірені - користувач автентифікований
+                    return "OK";
+                }
+
+            }
+
+            return "Авторизацію відхилено";
         }
     }
 }

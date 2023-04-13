@@ -34,6 +34,9 @@ namespace ASP_201MVC.Controllers
         {
             return View();
         }
+
+
+
         public IActionResult Scheme()
         {
             ViewBag.bagdata = "Data in ViewBag";     // Способи передачі даних
@@ -113,6 +116,11 @@ namespace ASP_201MVC.Controllers
         {
             //ViewData["code"] = Code;
             ViewData["UsersCount"] = _dataContext.Users.Count();
+            return View();
+        }
+
+        public IActionResult Sessions()
+        {
             return View();
         }
 
