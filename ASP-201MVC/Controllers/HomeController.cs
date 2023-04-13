@@ -28,6 +28,7 @@ namespace ASP_201MVC.Controllers
 
         public IActionResult Index()
         {
+            ViewData["authUser"] = HttpContext.Session.GetString("authUserId");
             return View();
         }
         public IActionResult Intro()

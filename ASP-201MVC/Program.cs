@@ -41,6 +41,16 @@ builder.Services.AddDbContext<DataContext>(options =>
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+//Налагодження сесій
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(1);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -55,6 +65,9 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+//включення механізму сесій
+app.UseSession();
 
 app.UseAuthorization();
 

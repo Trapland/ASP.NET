@@ -193,6 +193,7 @@ namespace ASP_201MVC.Controllers
                 if (user.PasswordHash == _kdfService.GetDerivedKey(password, user.PasswordSalt))
                 {
                     //дані перевірені - користувач автентифікований
+                    HttpContext.Session.SetString("authUserId",user.Id.ToString());
                     return "OK";
                 }
 
