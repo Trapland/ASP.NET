@@ -3,6 +3,7 @@ using ASP_201MVC.Models;
 using ASP_201MVC.Services;
 using ASP_201MVC.Services.Hash;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Diagnostics;
 
 namespace ASP_201MVC.Controllers
@@ -120,7 +121,16 @@ namespace ASP_201MVC.Controllers
             return View();
         }
 
-        public IActionResult Sessions()
+        public IActionResult Sessions([FromQuery(Name = "session-attr")]String? sessionAttr)
+        {
+            if(sessionAttr is not null)
+            {
+                HttpContext.Session.SetString("session-attribute", sessionAttr);
+            }
+            return View(); 
+        }
+
+        public ViewResult Middleware()
         {
             return View();
         }

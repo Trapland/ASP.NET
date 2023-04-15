@@ -4,6 +4,7 @@ using ASP_201MVC.Models.User;
 using ASP_201MVC.Services.Hash;
 using ASP_201MVC.Services.Kdf;
 using ASP_201MVC.Services.Random;
+using ASP_201MVC.Services.RandomImg;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.Extensions.Primitives;
@@ -19,14 +20,17 @@ namespace ASP_201MVC.Controllers
         private readonly DataContext _dataContext;
         private readonly IRandomService _randomService;
         private readonly IKdfService _kdfService;
+        private readonly IRandomImgName _randomImgService;
 
-        public UserController(IHashService hashService, ILogger<UserController> logger, DataContext dataContext, IRandomService randomService, IKdfService kdfService)
+
+        public UserController(IHashService hashService, ILogger<UserController> logger, DataContext dataContext, IRandomService randomService, IKdfService kdfService, IRandomImgName randomImgService)
         {
             _hashService = hashService;
             _logger = logger;
             _dataContext = dataContext;
             _randomService = randomService;
             _kdfService = kdfService;
+            _randomImgService = randomImgService;
         }
 
         public ActionResult Index()
@@ -99,26 +103,12 @@ namespace ASP_201MVC.Controllers
                 isModelValid = false;
             }
 
-            String savedName = null!;
+            String savedName = _randomImgService.RandomNameImg(registrationModel.Avatar.FileName);
             if (registrationModel.Avatar is not null)
             {
                 if (registrationModel.Avatar.Length > 1024)
                 {
-                    String ext = Path.GetExtension(registrationModel.Avatar.FileName);
-                    savedName = _hashService.Hash(registrationModel.Avatar.FileName + DateTime.Now + Random.Shared.Next())[..16] + ext;
                     String folderName = "wwwroot/avatars/";
-                    IEnumerable<string> files = Directory.EnumerateFiles(folderName);
-                    String FileName = folderName + savedName;
-                    while (true)
-                    {
-                        if (files.Contains(FileName))
-                        {
-                            savedName = _hashService.Hash(registrationModel.Avatar.FileName + DateTime.Now + Random.Shared.Next())[..16] + ext;
-                            FileName = folderName + savedName;
-                            continue;
-                        }
-                        break;
-                    }
                     String path = folderName + savedName;
                     using FileStream fs = new(path, FileMode.Create);
                     registrationModel.Avatar.CopyTo(fs);
