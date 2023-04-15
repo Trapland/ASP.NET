@@ -152,6 +152,12 @@ namespace ASP_201MVC.Controllers
 
         }
         [HttpPost]
+        public String Logout()
+        {
+            HttpContext.Session.Remove("authUserId");
+            return "OK";
+        }
+        [HttpPost]
         public String AuthUser()
         {
             // альтернатертивний до моделей спосіб отримання параметрів запиту
