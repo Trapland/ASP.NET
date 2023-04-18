@@ -37,6 +37,11 @@ namespace ASP_201MVC.Controllers
         {
             return View();
         }
+
+        public ActionResult Profile()
+        {
+            return View();
+        }
         public ActionResult RegistrationBootstrap(/*Registration registrationModel*/)
         {
             //RegisterValidationResult registerValidation = new();
@@ -102,8 +107,15 @@ namespace ASP_201MVC.Controllers
                 registerValidation.IsAgreeMessage = "Для реєстрації слід прийняти правила сайту";
                 isModelValid = false;
             }
-
-            String savedName = _randomImgService.RandomNameImg(registrationModel.Avatar.FileName);
+            String savedName = "";
+            if (registrationModel.Avatar == null)
+            {
+                savedName = "";
+            }
+            else
+            {
+                savedName = _randomImgService.RandomNameImg(registrationModel.Avatar.FileName);
+            }
             if (registrationModel.Avatar is not null)
             {
                 if (registrationModel.Avatar.Length > 1024)
@@ -151,12 +163,29 @@ namespace ASP_201MVC.Controllers
             }
 
         }
-        [HttpPost]
-        public String Logout()
+
+        public RedirectToActionResult Logout()
         {
             HttpContext.Session.Remove("authUserId");
-            return "OK";
+            return RedirectToAction("Index", "Home");
+            /* Redirect та інші питання з перенаправлення
+             * Browser            Server
+             * GET /home --------> (routing)->Home::Index()->View()
+             *   page    <-------- 200 OK <!doctype html>...
+             *   
+             * <a Logout> -------> User::Logout()->Redirect(...) 
+             *   follow  <------- 302 (Redirect) Location: /home
+             * GET /home --------> (routing)->Home::Index()->View()
+             *   page    <-------- 200 OK <!doctype html>...           
+             */
         }
+
+        //[HttpPost]
+        //public String Logout()
+        //{
+        //    HttpContext.Session.Remove("authUserId");
+        //    return "OK";
+        //}
         [HttpPost]
         public String AuthUser()
         {

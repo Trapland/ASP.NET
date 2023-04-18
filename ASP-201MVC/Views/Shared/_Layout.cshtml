@@ -1,5 +1,6 @@
 ﻿@using ASP_201MVC.Data.Entity;
 @using ASP_201MVC.Models.User;
+@using System.Security.Claims;
 
 <!DOCTYPE html>
 <html lang="en">
@@ -32,24 +33,31 @@
             </li>
             </ul>
             </div>*@
-            @if (Context.Items["authUser"] is User authUser)
+            @*@if (Context.Items["authUser"] is User authUser)*@
+            @if(Context.User.Identity is not null &&
+            Context.User.Identity.IsAuthenticated)
             {
-                <img src="~/avatars/@(authUser.Avatar)"
+
+                String userAvatar = Context.User.Claims.First(c => c.Type == ClaimTypes.UserData).Value;
+                if(String.IsNullOrEmpty(userAvatar)) userAvatar = "no-avatar.png";
+                String userLogin = Context.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                <a asp-controller="User" asp-action="Profile" class="mx-3" title="Profile" width="16" height="16">
+                <img src="~/avatars/@(userAvatar)"
                  alt="Ava"
-                 title="@(authUser.Login)"
-                 style="max-width: 40px; max-height:40px; border-radius: 50%" />
-                <form asp-controller="User" asp-action="Logout" method="post" class="mx-3" title="Вийти">
-                    <button id="Logout-button" type="button">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
+                 title="@userLogin"
+                 style="max-width: 40px; max-height: 40px; border-radius: 50%">
+                </a>
+                <a asp-controller="User" asp-action="Logout" class="mx-3" title="Вийти">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                     fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
                         <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0v2z" />
                         <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z" />
                     </svg>
-                    </button>
-                </form>
+                </a>
             }
             else
             {
-                <button title="Log in" type="button" class="btn btn-outline-primary mx-3" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                <button title="Login" type="button" class="btn btn-outline-primary mx-3" data-bs-toggle="modal" data-bs-target="#exampleModal">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-in-right" viewBox="0 0 16 16">
                         <path fill-rule="evenodd" d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0v-2z" />
                         <path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z" />
@@ -137,29 +145,29 @@
         }
 
 
-        document.addEventListener("DOMContentLoaded", () => {
-            const LogoutButton = document.getElementById("Logout-button");
-            if (!LogoutButton) throw "Logout-button not found";
-            LogoutButton.addEventListener("click", LogoutButtonClick);
-        });
+@*        //document.addEventListener("DOMContentLoaded", () => {
+        //    const LogoutButton = document.getElementById("Logout-button");
+        //    if (!LogoutButton) throw "Logout-button not found";
+        //    LogoutButton.addEventListener("click", LogoutButtonClick);
+        //});
 
-        function LogoutButtonClick() {
-            window.fetch("/User/Logout", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
-                }
-            })
-                .then(r => r.text())
-                .then(t => {
-                    console.log(t);
-                    if (t === "OK") {
-                        window.location.replace(window.location.origin);
-                    }
-                    else {
-                    }
-                });
-        }
+        //function LogoutButtonClick() {
+        //    window.fetch("/User/Logout", {
+        //        method: "POST",
+        //        headers: {
+        //            "Content-Type": "application/x-www-form-urlencoded"
+        //        }
+        //    })
+        //        .then(r => r.text())
+        //        .then(t => {
+        //            console.log(t);
+        //            if (t === "OK") {
+        //                window.location.replace(window.location.origin);
+        //            }
+        //            else {
+        //            }
+        //        });
+        //}*@
 
 
     </script>
