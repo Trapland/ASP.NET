@@ -38,9 +38,28 @@ namespace ASP_201MVC.Controllers
             return View();
         }
 
-        public ActionResult Profile()
+        public IActionResult Profile([FromRoute]String id)
         {
-            return View();
+            _logger.LogInformation(id);
+            User? user = _dataContext.Users.FirstOrDefault(u => u.Login == id);
+            if (user is not null)
+            {
+                ProfileModel model = new(user);
+                return View(model);
+            }
+            else
+            {
+                return NotFound();
+            }
+            /*Особиста сторінка / Профиль
+             * 1. Чи буде ця сторінка доступна іншим користувачам
+             * Так, інші користувачі можуть переглядати профіль інших користувачів
+             * але тільки ті дані, що дозволив власник.
+             * 2. Як має формуватись адрера /User/Profile/????
+             * a) Id
+             * б) Login
+             */
+
         }
         public ActionResult RegistrationBootstrap(/*Registration registrationModel*/)
         {
@@ -57,6 +76,11 @@ namespace ASP_201MVC.Controllers
             if (String.IsNullOrEmpty(registrationModel.Login))
             {
                 registerValidation.LoginMessage = "Логін не може бути порожним";
+                isModelValid = false;
+            }
+            if (_dataContext.Users.Any(u => u.Login == registrationModel.Login))
+            {
+                registerValidation.LoginMessage = "Логін вже використовується";
                 isModelValid = false;
             }
             if (String.IsNullOrEmpty(registrationModel.Password))
@@ -218,7 +242,7 @@ namespace ASP_201MVC.Controllers
                 if (user.PasswordHash == _kdfService.GetDerivedKey(password, user.PasswordSalt))
                 {
                     //дані перевірені - користувач автентифікований
-                    HttpContext.Session.SetString("authUserId",user.Id.ToString());
+                    HttpContext.Session.SetString("authUserId", user.Id.ToString());
                     return "OK";
                 }
 

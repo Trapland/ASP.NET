@@ -41,7 +41,7 @@
                 String userAvatar = Context.User.Claims.First(c => c.Type == ClaimTypes.UserData).Value;
                 if(String.IsNullOrEmpty(userAvatar)) userAvatar = "no-avatar.png";
                 String userLogin = Context.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
-                <a asp-controller="User" asp-action="Profile" class="mx-3" title="Profile" width="16" height="16">
+                <a asp-controller="User" asp-action="Profile" asp-route-id="@userLogin" class="mx-3" title="Profile" width="16" height="16">
                 <img src="~/avatars/@(userAvatar)"
                  alt="Ava"
                  title="@userLogin"

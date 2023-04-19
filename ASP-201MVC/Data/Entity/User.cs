@@ -22,5 +22,13 @@
 
         public String? EmailCode { get; set; }
 
+        // Додано 2023-04-19 робота з Profile
+        public Boolean IsEmailPublic { get; set; } = false;
+
+        public Boolean IsNamePublic { get; set; } = false;
+
+        public Boolean IsDatePublic { get; set; } = false;
+
+
     }
 }
