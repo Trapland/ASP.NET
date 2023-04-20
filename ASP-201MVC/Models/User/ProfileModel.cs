@@ -20,6 +20,11 @@
 
         public bool IsEmailPublic { get; set; }
 
+        /// <summary>
+        /// Чи є даний профіль персональним(для конкретного юзера)
+        /// </summary>
+        public bool isPersonal { get; set; }
+
 
         public ProfileModel(Data.Entity.User user)
         {

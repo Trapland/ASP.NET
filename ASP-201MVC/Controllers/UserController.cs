@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.Extensions.Primitives;
 using System.Net.Mail;
+using System.Security.Claims;
 using System.Text.RegularExpressions;
 
 namespace ASP_201MVC.Controllers
@@ -45,7 +46,17 @@ namespace ASP_201MVC.Controllers
             if (user is not null)
             {
                 ProfileModel model = new(user);
+                if (HttpContext.User.Identity is not null &&
+                    HttpContext.User.Identity.IsAuthenticated)
+                {
+                    String userLogin = HttpContext.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                    if (userLogin == user.Login)
+                    {
+                        model.isPersonal = true;
+                    }
+                }
                 return View(model);
+
             }
             else
             {
@@ -55,7 +66,7 @@ namespace ASP_201MVC.Controllers
              * 1. Чи буде ця сторінка доступна іншим користувачам
              * Так, інші користувачі можуть переглядати профіль інших користувачів
              * але тільки ті дані, що дозволив власник.
-             * 2. Як має формуватись адрера /User/Profile/????
+             * 2. Як має формуватись адреса /User/Profile/????
              * a) Id
              * б) Login
              */
