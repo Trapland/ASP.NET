@@ -261,5 +261,41 @@ namespace ASP_201MVC.Controllers
 
             return "Авторизацію відхилено";
         }
+
+        [HttpPut]
+        public IActionResult Update([FromBody] UpdateRequestModel model)
+        {
+            UpdateResponseModel responseModel = new();
+            try
+            {
+                if (model is null) throw new Exception("No or empty data");
+                if(HttpContext.User.Identity?.IsAuthenticated == false)
+                {
+                    throw new Exception("UnAuthenticated");
+                }
+                User? user = _dataContext.Users.Find(
+                    Guid.Parse(
+                        HttpContext.User.Claims.First(
+                            c => c.Type == ClaimTypes.Sid).Value));
+                if (user is null) throw new Exception("UnAuthorized");
+                switch (model.Field)
+                {
+                    case "realname":
+                        user.Name = model.Value;
+                        _dataContext.SaveChanges();
+                        break;
+                    default:
+                        throw new Exception("Invalid Field attribute");
+                }
+                responseModel.Status = "OK";
+                responseModel.Data = $"Field '{model.Field}' updated by value '{model.Value}'";
+            }
+            catch (Exception ex)
+            {
+                responseModel.Status = "Error";
+                responseModel.Data = ex.Message;
+            }
+            return Json(responseModel);
+        }
     }
 }

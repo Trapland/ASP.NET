@@ -226,33 +226,46 @@
             pencil.addEventListener("click", editClick);
         }
     })
-    let str = "";
-    let editElem;
+    //let editElem;
     function editClick(e) {
-        if (editElem == e.target) {
-            editElem = "";
-            return;
-        }
-        editElem = e.target;
-        editElem.src = "../../img/icons/pencil-square.svg";
+        //if (editElem == e.target) {
+        //    editElem = "";
+        //    return;
+        //}
+        //editElem = e.target;
+        e.target.oldsrc = e.target.src;
+        e.target.src = "../../img/icons/pencil-square.svg";
         const targetId = e.target.getAttribute("data-ref-field");
-        console.log(targetId);
         const targetElement = document.getElementById(targetId);
         str = targetElement.innerHTML;
         targetElement.setAttribute("contenteditable", "true");
         targetElement.focus();
         targetElement.onblur = editingFinished;
         targetElement.onkeydown = editingKeydown;
+        targetElement.oldtext = targetElement.innerText;
+        e.target.removeEventListener("click", editClick);
     }
     function editingFinished(e) {
         const elem = e.target;
-        if (str !== elem.innerText) {
-            if (confirm("Зберегти зміни?")) {
-                console.log("Sending " + elem.id + " = " + elem.innerText);
+            if (elem.innerText != elem.oldtext && confirm("Зберегти зміни?")) {
+                const data = {
+                    field: elem.id,
+                    value: elem.innerText
+                }
+                const dataStr = JSON.stringify(data);
+                console.log("Sending: " + dataStr);
+                window.fetch("/User/Update",{
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: dataStr
+                }).then(r=> r.json()).then(console.log);
             }
-        }
-        editElem.src = "../../img/icons/pencil.svg";
+            const img = document.querySelector(`[data-ref-field=${elem.id}]`);
+            img.src= img.oldsrc;
         elem.removeAttribute("contenteditable");
+        setTimeout(() => img.addEventListener("click", editClick),250);
     }
     function editingKeydown(e) {
         if (e.key == "Enter") {
