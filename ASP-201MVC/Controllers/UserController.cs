@@ -284,6 +284,10 @@ namespace ASP_201MVC.Controllers
                         user.Name = model.Value;
                         _dataContext.SaveChanges();
                         break;
+                    case "email":
+                        user.Email = model.Value;
+                        _dataContext.SaveChanges();
+                        break;
                     default:
                         throw new Exception("Invalid Field attribute");
                 }
