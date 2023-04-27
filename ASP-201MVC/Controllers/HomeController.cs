@@ -16,8 +16,9 @@ namespace ASP_201MVC.Controllers
         private readonly StampService _stampService;
         private readonly IHashService _hashService;
         private readonly DataContext _dataContext;
+        private readonly IConfiguration _configuration;
 
-        public HomeController(ILogger<HomeController> logger, DateService dateService, TimeService timeService, StampService stampService, IHashService hashService, DataContext dataContext)
+        public HomeController(ILogger<HomeController> logger, DateService dateService, TimeService timeService, StampService stampService, IHashService hashService, DataContext dataContext, IConfiguration configuration)
         {
             _logger = logger;
             _dateService = dateService;
@@ -25,6 +26,7 @@ namespace ASP_201MVC.Controllers
             _stampService = stampService;
             _hashService = hashService;
             _dataContext = dataContext;
+            _configuration = configuration;
         }
 
         public IActionResult Index()
@@ -37,7 +39,11 @@ namespace ASP_201MVC.Controllers
             return View();
         }
 
-
+        public IActionResult EmailConfirmation()
+        {
+            ViewData["config"] = _configuration["Smtp:Gmail:Host"];
+            return View();
+        }
 
         public IActionResult Scheme()
         {

@@ -1,10 +1,12 @@
 using ASP_201MVC.Data;
 using ASP_201MVC.Middleware;
 using ASP_201MVC.Services;
+using ASP_201MVC.Services.Email;
 using ASP_201MVC.Services.Hash;
 using ASP_201MVC.Services.Kdf;
 using ASP_201MVC.Services.Random;
 using ASP_201MVC.Services.RandomImg;
+using ASP_201MVC.Services.Validation;
 using Microsoft.EntityFrameworkCore;
 using MySqlConnector;
 
@@ -19,6 +21,8 @@ builder.Services.AddSingleton<IHashService, Md5HashService>();
 builder.Services.AddSingleton<IRandomService, RandomServiceV1>();
 builder.Services.AddSingleton<IKdfService, HashKdfService>();
 builder.Services.AddSingleton<IRandomImgName, RandomImgName>();
+builder.Services.AddSingleton<IValidationService, ValidationServiceV1>();
+builder.Services.AddSingleton<IEmailService, GmailService>();
 
 //реєстрація контексту з підключення до MS SQL Server
 //builder.Services.AddDbContext<DataContext>(options => 

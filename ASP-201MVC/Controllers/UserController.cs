@@ -1,10 +1,12 @@
 ﻿using ASP_201MVC.Data;
 using ASP_201MVC.Data.Entity;
 using ASP_201MVC.Models.User;
+using ASP_201MVC.Services.Email;
 using ASP_201MVC.Services.Hash;
 using ASP_201MVC.Services.Kdf;
 using ASP_201MVC.Services.Random;
 using ASP_201MVC.Services.RandomImg;
+using ASP_201MVC.Services.Validation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing.Constraints;
 using Microsoft.Extensions.Primitives;
@@ -22,9 +24,11 @@ namespace ASP_201MVC.Controllers
         private readonly IRandomService _randomService;
         private readonly IKdfService _kdfService;
         private readonly IRandomImgName _randomImgService;
+        private readonly IValidationService _validationService;
+        private readonly IEmailService _emailService;
 
 
-        public UserController(IHashService hashService, ILogger<UserController> logger, DataContext dataContext, IRandomService randomService, IKdfService kdfService, IRandomImgName randomImgService)
+        public UserController(IHashService hashService, ILogger<UserController> logger, DataContext dataContext, IRandomService randomService, IKdfService kdfService, IRandomImgName randomImgService, IValidationService validationService, IEmailService emailService = null)
         {
             _hashService = hashService;
             _logger = logger;
@@ -32,6 +36,8 @@ namespace ASP_201MVC.Controllers
             _randomService = randomService;
             _kdfService = kdfService;
             _randomImgService = randomImgService;
+            _validationService = validationService;
+            _emailService = emailService;
         }
 
         public ActionResult Index()
@@ -109,19 +115,16 @@ namespace ASP_201MVC.Controllers
                 registerValidation.RepeatPasswordMessage = "Паролі не співпадають";
                 isModelValid = false;
             }
-            if (String.IsNullOrEmpty(registrationModel.Email))
+            if (!_validationService.Validate(registrationModel.Email, ValidationTerms.NotEmpty))
             {
                 registerValidation.EmailMessage = "Email не може бути порожним";
                 isModelValid = false;
             }
-            else
+            else if (!_validationService.Validate(registrationModel.Email, ValidationTerms.Email))
             {
-                string emailRegex = @"^[\w\.%+-]+@([\w-]+\.)+(\w{2,})$";
-                if (!Regex.IsMatch(registrationModel.Email, emailRegex))
-                {
-                    registerValidation.EmailMessage = "Email введено не корректно";
-                    isModelValid = false;
-                }
+                registerValidation.EmailMessage = "Email введено не корректно";
+                isModelValid = false;
+            }
                 //try
                 //{
                 //    MailAddress m = new MailAddress(registrationModel.Email);
@@ -131,7 +134,7 @@ namespace ASP_201MVC.Controllers
                 //    registerValidation.EmailMessage = "Email введено не корректно";
                 //    isModelValid = false;
                 //}
-            }
+            
             if (String.IsNullOrEmpty(registrationModel.Name))
             {
                 registerValidation.NameMessage = "Name не може бути порожним";
@@ -186,6 +189,14 @@ namespace ASP_201MVC.Controllers
                 };
                 _dataContext.Users.Add(user);
                 _dataContext.SaveChangesAsync();
+                _emailService.Send("confirm_email",
+                    new Models.Email.ConfirmEmailModel
+                    {
+                        Email = user.Email,
+                        RealName = user.Name,
+                        EmailCode = user.EmailCode,
+                        ConfirmLink = ""
+                    });
                 return View(registrationModel);
             }
             else
@@ -281,15 +292,31 @@ namespace ASP_201MVC.Controllers
                 switch (model.Field)
                 {
                     case "realname":
-                        user.Name = model.Value;
-                        _dataContext.SaveChanges();
+                        if (_validationService.Validate(model.Value, ValidationTerms.RealName))
+                        {
+                            user.Name = model.Value;
+                            _dataContext.SaveChanges();
+                        }
+                        else
+                        {
+                            throw new Exception(
+                                $"Validation error: field '{model.Field}' with value '{model.Value}'");
+                        }
                         break;
                     case "email":
-                        user.Email = model.Value;
-                        _dataContext.SaveChanges();
+                        if (_validationService.Validate(model.Value, ValidationTerms.Email))
+                        {
+                            user.Email = model.Value;
+                            _dataContext.SaveChanges();
+                        }
+                        else
+                        {
+                            throw new Exception(
+                                $"Validation error: field '{model.Field}' with value '{model.Value}'");
+                        }
                         break;
                     default:
-                        throw new Exception("Invalid Field attribute");
+                        throw new Exception($"Invalid Field attribute '{model.Field}'");
                 }
                 responseModel.Status = "OK";
                 responseModel.Data = $"Field '{model.Field}' updated by value '{model.Value}'";

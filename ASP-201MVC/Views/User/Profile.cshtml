@@ -249,46 +249,60 @@
     function editingFinished(e) {
         const elem = e.target;
         if (elem.innerText != elem.oldtext && elem.escPressed === false && confirm("Зберегти зміни?")) {
-                const data = {
-                    field: elem.id,
-                    value: elem.innerText
-                }
-                const dataStr = JSON.stringify(data);
-                console.log("Sending: " + dataStr);
-                window.fetch("/User/Update",{
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: dataStr
-                }).then(r=> r.json()).then(t => {
-                    console.log(t);
-                if(t["status"] === "OK")
-                {
-                    if(elem.id === "realname")
-                        document.getElementById(`name`).innerText = elem.innerText;
-                }
-                else
-                {
-                    alert(t["data"]);
-                    elem.innerText = elem.oldtext;
-                }
-                }
-                )
+            const data = {
+                field: elem.id,
+                value: elem.innerText
             }
-            else{
+            const dataStr = JSON.stringify(data);
+            console.log("Sending: " + dataStr);
+            window.fetch("/User/Update", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: dataStr
+            })
+            .then(r => {
+                if(r.status != 200){
+                    alert("Response unsuccessfull");
+                    return;
+                }
+                return r.json();
+            })
+            .then(j => {
+                console.log(j);
+                if(j.status != 'OK'){
+                    alert(j.data);
+                }
+            });
+
+            //My variant
+                //.then(r => r.json()).then(t => {
+                //    console.log(t);
+                //    if (t["status"] === "OK") {
+                //        if (elem.id === "realname")
+                //            document.getElementById(`name`).innerText = elem.innerText;
+                //    }
+                //    else {
+                //        alert(t["data"]);
+                //        elem.innerText = elem.oldtext;
+                //    }
+                //}
+                //)
+        }
+        else {
             elem.innerText = elem.oldtext;
-            }
-            const img = document.querySelector(`[data-ref-field=${elem.id}]`);
-            img.src= img.oldsrc;
+        }
+        const img = document.querySelector(`[data-ref-field=${elem.id}]`);
+        img.src = img.oldsrc;
         elem.removeAttribute("contenteditable");
-        setTimeout(() => img.addEventListener("click", editClick),250);
+        setTimeout(() => img.addEventListener("click", editClick), 250);
     }
     function editingKeydown(e) {
         if (e.key === "Enter") {
             e.target.blur();
         }
-        if(e.key === "Escape"){
+        if (e.key === "Escape") {
             const edit = document.getElementById(`${e.target.id}`);
             edit.escPressed = true;
             e.target.blur();
