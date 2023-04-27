@@ -87,7 +87,21 @@
                         <hr>
                         <div class="row">
                             <div class="col-sm-3">
-                                <h6 class="mb-0">Email</h6>
+                                <h6 class="mb-0">
+                                    Email
+                                    @if (Model.isPersonal)
+                                    {
+                                        @if (Model.IsEmailConfirmed)
+                                        {
+                                            <img src="~/img/icons/person-check.svg" alt="+" class="mb-1 filter-color-green">
+                                        }
+                                        else
+                                        {
+                                            <img src="~/img/icons/person-slash.svg" alt="-" class="mb-1 filter-color-candy" role="button" data-bs-toggle="modal" data-bs-target="#confirmModal">
+
+                                        }
+                                    }
+                                </h6>
                             </div>
                             <div class="col-sm-8 text-secondary">
                                 <span id="email" class="p-2">@(Model.IsEmailPublic || Model.isPersonal ? Model.Email : "Hidden")</span>
@@ -220,10 +234,40 @@
 
     </div>
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Введіть код з Email: </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group mb-3">
+                    <span class="input-group-text" id="confirm-addon">Код</span>
+                    <input id="confirm-email-input" type="text" class="form-control" aria-label="With textarea" placeholder="Код з пошти">
+                </div>
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Відміна</button>
+                <button type="button" class="btn btn-primary" id="confirm-email-button">Підтвердити</button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         for (let pencil of document.querySelectorAll("[data-ref-field]")) {
             pencil.addEventListener("click", editClick);
+        }
+        const confirmEmailButton = document.getElementById("confirm-email-button");
+        if (confirmEmailButton) {
+            confirmEmailButton.addEventListener("click", confirmEmailButtonClick);
+        }
+        else {
+            console.error("Element not found: 'confirm-email-button' ")
         }
     })
     //let editElem;
@@ -262,33 +306,33 @@
                 },
                 body: dataStr
             })
-            .then(r => {
-                if(r.status != 200){
-                    alert("Response unsuccessfull");
-                    return;
-                }
-                return r.json();
-            })
-            .then(j => {
-                console.log(j);
-                if(j.status != 'OK'){
-                    alert(j.data);
-                }
-            });
+                .then(r => {
+                    if (r.status != 200) {
+                        alert("Response unsuccessfull");
+                        return;
+                    }
+                    return r.json();
+                })
+                .then(j => {
+                    console.log(j);
+                    if (j.status != 'OK') {
+                        alert(j.data);
+                    }
+                });
 
             //My variant
-                //.then(r => r.json()).then(t => {
-                //    console.log(t);
-                //    if (t["status"] === "OK") {
-                //        if (elem.id === "realname")
-                //            document.getElementById(`name`).innerText = elem.innerText;
-                //    }
-                //    else {
-                //        alert(t["data"]);
-                //        elem.innerText = elem.oldtext;
-                //    }
-                //}
-                //)
+            //.then(r => r.json()).then(t => {
+            //    console.log(t);
+            //    if (t["status"] === "OK") {
+            //        if (elem.id === "realname")
+            //            document.getElementById(`name`).innerText = elem.innerText;
+            //    }
+            //    else {
+            //        alert(t["data"]);
+            //        elem.innerText = elem.oldtext;
+            //    }
+            //}
+            //)
         }
         else {
             elem.innerText = elem.oldtext;
@@ -307,5 +351,33 @@
             edit.escPressed = true;
             e.target.blur();
         }
+    }
+    function confirmEmailButtonClick() {
+        const confirmEmailInput = document.getElementById("confirm-email-input");
+        if (!confirmEmailInput) throw "Element not found: 'confirm-email-input'";
+        const emailCode = confirmEmailInput.value;
+        if (emailCode.length === 0) {
+            alert("Код не може бути порожним");
+            return;
+        }
+        window.fetch("/User/ConfirmEmail", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(emailCode)
+        })
+            .then(r=> r.json())
+            .then(j => {
+                console.log(j);
+
+                if(j.status == "200")
+                {
+                    window.location.reload();
+                }
+                else{
+                    alert(j.data);
+                }
+            });
     }
 </script>

@@ -9,7 +9,6 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\avatars\" />
-    <Folder Include="wwwroot\img\icons\" />
   </ItemGroup>
 
   <ItemGroup>

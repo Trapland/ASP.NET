@@ -1,5 +1,6 @@
 ﻿using ASP_201MVC.Data;
 using ASP_201MVC.Data.Entity;
+using ASP_201MVC.Models;
 using ASP_201MVC.Models.User;
 using ASP_201MVC.Services.Email;
 using ASP_201MVC.Services.Hash;
@@ -327,6 +328,53 @@ namespace ASP_201MVC.Controllers
                 responseModel.Data = ex.Message;
             }
             return Json(responseModel);
+        }
+
+        [HttpPost]
+        public JsonResult ConfirmEmail([FromBody] string emailCode)
+        {
+            StatusDataModel model = new();
+            if(String.IsNullOrEmpty(emailCode))
+            {
+                model.Status= "406";
+                model.Data = "Empty code not acceptable";
+            }
+            else if(HttpContext.User.Identity?.IsAuthenticated == false)
+            {
+                model.Status = "401";
+                model.Data = "UnAuthenticated";
+
+            }
+            else
+            {
+                User? user = _dataContext.Users.Find(
+                    Guid.Parse(
+                        HttpContext.User.Claims.First(
+                            c => c.Type == ClaimTypes.Sid).Value));
+                if (user is null)
+                {
+                    model.Status = "403";
+                    model.Data = "Forbidden (UnAuthorized)";
+                }
+                else if(user.EmailCode is null)
+                {
+                    model.Status = "208";
+                    model.Data = "Already confirmed";
+                }
+                else if(user.EmailCode != emailCode)
+                {
+                    model.Status = "406";
+                    model.Data = "Code not Accepted";
+                }
+                else
+                {
+                    user.EmailCode = null;
+                    _dataContext.SaveChanges();
+                    model.Status = "200";
+                    model.Data = "OK";
+                }
+            }
+            return Json(model);
         }
     }
 }

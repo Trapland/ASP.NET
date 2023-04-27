@@ -20,6 +20,8 @@
 
         public bool IsEmailPublic { get; set; }
 
+        public bool IsEmailConfirmed { get; set; }
+
         /// <summary>
         /// Чи є даний профіль персональним(для конкретного юзера)
         /// </summary>
@@ -37,6 +39,7 @@
                 {
                     thisProp?.SetValue(this, prop.GetValue(user));
                 }
+                this.IsEmailConfirmed = user.EmailCode is null;
             }
         }
     }
