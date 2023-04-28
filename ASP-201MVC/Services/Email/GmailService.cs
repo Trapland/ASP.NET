@@ -56,7 +56,7 @@ namespace ASP_201MVC.Services.Email
             {
                 if(prop.Name == "Email")
                     userEmail = prop.GetValue(model)?.ToString();
-                String placeholder = $"{{{prop.Name}}}";
+                String placeholder = $"{{{{{prop.Name}}}}}";
                 if(template.Contains(placeholder))
                 {
                     template= template.Replace(placeholder, prop.GetValue(model)?.ToString() ?? "");

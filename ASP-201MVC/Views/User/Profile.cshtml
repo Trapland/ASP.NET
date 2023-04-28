@@ -25,7 +25,7 @@
                 <div class="card">
                     <div class="card-body">
                         <div class="d-flex flex-column align-items-center text-center">
-                            <img src="~/avatars/@(Model.Avatar)" alt="@(Model.Login)" class="rounded-circle" width="150">
+                            <img src="~/avatars/@(Model.Avatar)" alt="no avatar" class="rounded-circle" width="150">
                             <div class="mt-3">
                                 <h4 id="name">
                                     @(
@@ -250,7 +250,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-
+                <button type="button" class="btn btn-warning" id="resend-email-button">Надіслати новий код</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Відміна</button>
                 <button type="button" class="btn btn-primary" id="confirm-email-button">Підтвердити</button>
             </div>
@@ -268,6 +268,13 @@
         }
         else {
             console.error("Element not found: 'confirm-email-button' ")
+        }
+        const resendEmailButton = document.getElementById("resend-email-button");
+        if (resendEmailButton) {
+            resendEmailButton.addEventListener("click", resendEmailButtonClick);
+        }
+        else {
+            console.error("Element not found: 'resend-email-button' ")
         }
     })
     //let editElem;
@@ -367,17 +374,26 @@
             },
             body: JSON.stringify(emailCode)
         })
-            .then(r=> r.json())
+            .then(r => r.json())
             .then(j => {
                 console.log(j);
 
-                if(j.status == "200")
-                {
+                if (j.status == "200") {
                     window.location.reload();
                 }
-                else{
+                else {
                     alert(j.data);
                 }
             });
+    }
+    function resendEmailButtonClick() {
+        window.fetch("/User/ResendConfirmEmail", {
+            method: "PATCH",
+        })
+            .then(r => r.text())
+            .then(t => {
+                console.log(t);
+            });
+
     }
 </script>

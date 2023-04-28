@@ -46,7 +46,7 @@ namespace ASP_201MVC.Controllers
             return View();
         }
 
-        public IActionResult Profile([FromRoute]String id)
+        public IActionResult Profile([FromRoute] String id)
         {
             _logger.LogInformation(id);
             User? user = _dataContext.Users.FirstOrDefault(u => u.Login == id);
@@ -126,16 +126,16 @@ namespace ASP_201MVC.Controllers
                 registerValidation.EmailMessage = "Email введено не корректно";
                 isModelValid = false;
             }
-                //try
-                //{
-                //    MailAddress m = new MailAddress(registrationModel.Email);
-                //}
-                //catch (FormatException)
-                //{
-                //    registerValidation.EmailMessage = "Email введено не корректно";
-                //    isModelValid = false;
-                //}
-            
+            //try
+            //{
+            //    MailAddress m = new MailAddress(registrationModel.Email);
+            //}
+            //catch (FormatException)
+            //{
+            //    registerValidation.EmailMessage = "Email введено не корректно";
+            //    isModelValid = false;
+            //}
+
             if (String.IsNullOrEmpty(registrationModel.Name))
             {
                 registerValidation.NameMessage = "Name не може бути порожним";
@@ -189,15 +189,12 @@ namespace ASP_201MVC.Controllers
                     LastEnterDt = null
                 };
                 _dataContext.Users.Add(user);
+
+                var emailConfirmToken = _GenerateEmailConfirmToken(user);
+                _SendConfirmEmail(user, emailConfirmToken);
                 _dataContext.SaveChangesAsync();
-                _emailService.Send("confirm_email",
-                    new Models.Email.ConfirmEmailModel
-                    {
-                        Email = user.Email,
-                        RealName = user.Name,
-                        EmailCode = user.EmailCode,
-                        ConfirmLink = ""
-                    });
+                // Формуємо посилання: схема://домен(хост)/User/ConfirmToken?token=...
+                
                 return View(registrationModel);
             }
             else
@@ -281,7 +278,7 @@ namespace ASP_201MVC.Controllers
             try
             {
                 if (model is null) throw new Exception("No or empty data");
-                if(HttpContext.User.Identity?.IsAuthenticated == false)
+                if (HttpContext.User.Identity?.IsAuthenticated == false)
                 {
                     throw new Exception("UnAuthenticated");
                 }
@@ -334,12 +331,12 @@ namespace ASP_201MVC.Controllers
         public JsonResult ConfirmEmail([FromBody] string emailCode)
         {
             StatusDataModel model = new();
-            if(String.IsNullOrEmpty(emailCode))
+            if (String.IsNullOrEmpty(emailCode))
             {
-                model.Status= "406";
+                model.Status = "406";
                 model.Data = "Empty code not acceptable";
             }
-            else if(HttpContext.User.Identity?.IsAuthenticated == false)
+            else if (HttpContext.User.Identity?.IsAuthenticated == false)
             {
                 model.Status = "401";
                 model.Data = "UnAuthenticated";
@@ -356,12 +353,12 @@ namespace ASP_201MVC.Controllers
                     model.Status = "403";
                     model.Data = "Forbidden (UnAuthorized)";
                 }
-                else if(user.EmailCode is null)
+                else if (user.EmailCode is null)
                 {
                     model.Status = "208";
                     model.Data = "Already confirmed";
                 }
-                else if(user.EmailCode != emailCode)
+                else if (user.EmailCode != emailCode)
                 {
                     model.Status = "406";
                     model.Data = "Code not Accepted";
@@ -376,5 +373,93 @@ namespace ASP_201MVC.Controllers
             }
             return Json(model);
         }
+
+        [HttpGet]
+        public ViewResult ConfirmToken([FromQuery] String token)
+        {
+            try
+            {
+                //шукаємо токен за отриманим ID
+                var confirmToken = _dataContext.EmailConfirmTokens.Find(Guid.Parse(token)) ?? throw new Exception();
+                //шукаємо користувача за UserId
+                var user = _dataContext.Users.Find(confirmToken.UserId) ?? throw new Exception();
+                // перевіряємо збіг пошт
+                if (user.Email != confirmToken.UserEmail)
+                {
+                    throw new Exception();
+                } // оновлюємо дані
+                user.EmailCode = null; // Пошта підтверджена
+                confirmToken.Used += 1; // ведемо рахунок використання токена
+                _dataContext.SaveChangesAsync();
+                ViewData["result"] = "Вітаємо, пошта успішно підтверджена";
+            }
+            catch
+            {
+                ViewData["result"] = "Перевірка не пройдена, не змінюйте посилання з листа";
+            }
+            return View();
+        }
+
+        [HttpPatch]
+        public String ResendConfirmEmail()
+        {
+            if (HttpContext.User.Identity?.IsAuthenticated == false)
+            {
+                return "Unauthenticated";
+            }
+            try
+            {
+                User? user = _dataContext.Users.Find
+                    (Guid.Parse(HttpContext.User.Claims.First
+                    (c => c.Type == ClaimTypes.Sid).Value))
+                    ?? throw new Exception();
+
+                var emailConfirmToken = _GenerateEmailConfirmToken(user);
+                user.EmailCode = _randomService.ConfirmCode(6);
+                _dataContext.SaveChangesAsync(); 
+                if(_SendConfirmEmail(user, emailConfirmToken))
+                {
+                    return "OK";
+                }
+                else
+                {
+                    return "Send error";
+                }
+            }
+            catch
+            {
+                return "Unauthorized";
+            }
+
+        }
+
+        private EmailConfirmToken _GenerateEmailConfirmToken(Data.Entity.User user)
+        {
+            Data.Entity.EmailConfirmToken emailConfirmToken = new()
+            {
+                Id = Guid.NewGuid(),
+                UserId = user.Id,
+                UserEmail = user.Email,
+                Moment = DateTime.Now,
+                Used = 0
+            };
+            _dataContext.EmailConfirmTokens.Add(emailConfirmToken);
+            return emailConfirmToken;
+        }
+
+        private bool _SendConfirmEmail(User user, EmailConfirmToken emailConfirmToken)
+        {
+            String confirmLink = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.Value}/User/ConfirmToken?token={emailConfirmToken.Id}";
+
+            return _emailService.Send("confirm_email",
+                new Models.Email.ConfirmEmailModel
+                {
+                    Email = user.Email,
+                    RealName = user.Name,
+                    EmailCode = user.EmailCode!,
+                    ConfirmLink = confirmLink
+                });
+        }
     }
+
 }
