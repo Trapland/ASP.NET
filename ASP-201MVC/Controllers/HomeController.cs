@@ -41,7 +41,7 @@ namespace ASP_201MVC.Controllers
 
         public IActionResult EmailConfirmation()
         {
-            ViewData["config"] = _configuration["Smtp:Gmail:Host"];
+            ViewData["config"] = _configuration["Smtp:Gmail:Host"] + " " + _configuration["Smtp:Gmail:Port"] + " " + _configuration["Smtp:Gmail:Email"] + " " + _configuration["Smtp:Gmail:Ssl"];
             return View();
         }
 
