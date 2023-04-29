@@ -306,7 +306,7 @@ namespace ASP_201MVC.Controllers
                         if (_validationService.Validate(model.Value, ValidationTerms.Email))
                         {
                             user.Email = model.Value;
-                            _dataContext.SaveChanges();
+                            ResendConfirmEmail();
                         }
                         else
                         {
@@ -461,6 +461,7 @@ namespace ASP_201MVC.Controllers
                     ConfirmLink = confirmLink
                 });
         }
+
         private bool _SendCongratsEmail(User user)
         {
             return _emailService.Send("congrats",

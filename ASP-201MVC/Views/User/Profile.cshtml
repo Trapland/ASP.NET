@@ -326,6 +326,8 @@
                 })
                 .then(j => {
                     console.log(j);
+                    if(data.field === "email")
+                        window.location.reload();
                     if (j.status != 'OK') {
                         alert(j.data);
                     }
