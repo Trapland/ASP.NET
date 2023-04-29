@@ -192,6 +192,7 @@ namespace ASP_201MVC.Controllers
 
                 var emailConfirmToken = _GenerateEmailConfirmToken(user);
                 _SendConfirmEmail(user, emailConfirmToken);
+                _SendCongratsEmail(user);
                 _dataContext.SaveChangesAsync();
                 // Формуємо посилання: схема://домен(хост)/User/ConfirmToken?token=...
                 
@@ -458,6 +459,17 @@ namespace ASP_201MVC.Controllers
                     RealName = user.Name,
                     EmailCode = user.EmailCode!,
                     ConfirmLink = confirmLink
+                });
+        }
+        private bool _SendCongratsEmail(User user)
+        {
+            return _emailService.Send("congrats",
+                new Models.Email.ConfirmEmailModel
+                {
+                    Email = user.Email,
+                    RealName = user.Name,
+                    EmailCode = user.EmailCode!,
+                    ConfirmLink = null!
                 });
         }
     }
