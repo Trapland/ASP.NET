@@ -41,7 +41,16 @@
                 String userAvatar = Context.User.Claims.First(c => c.Type == ClaimTypes.UserData).Value;
                 if(String.IsNullOrEmpty(userAvatar)) userAvatar = "no-avatar.png";
                 String userLogin = Context.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
+                String userConfirm = Context.User.Claims.First(c => c.Type == ClaimTypes.WindowsUserClaim).Value;
                 <a asp-controller="User" asp-action="Profile" asp-route-id="@userLogin" class="mx-3" title="Profile" width="16" height="16">
+                    @if(userConfirm != String.Empty)
+                    {
+                        <img src="~/avatars/@(userAvatar)"
+                        alt="Ava"
+                        class="filter-color-mail-confirm"
+                        title="Непідтверджена пошта"
+                        style="max-width: 40px; max-height: 40px; border-radius: 50%; position:absolute;">
+                    }
                 <img src="~/avatars/@(userAvatar)"
                  alt="Ava"
                  title="@userLogin"

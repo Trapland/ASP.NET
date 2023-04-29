@@ -42,7 +42,8 @@ namespace ASP_201MVC.Middleware
                             new Claim(ClaimTypes.Sid, userId),
                             new Claim(ClaimTypes.Name, authUser.Name),
                             new Claim(ClaimTypes.NameIdentifier, authUser.Login),
-                            new Claim(ClaimTypes.UserData, authUser.Avatar ?? String.Empty)
+                            new Claim(ClaimTypes.UserData, authUser.Avatar ?? String.Empty),
+                            new Claim(ClaimTypes.WindowsUserClaim, authUser.EmailCode ?? String.Empty)
                         };
                         var principal = new ClaimsPrincipal(
                             new ClaimsIdentity(claims,
