@@ -21,40 +21,42 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Forum" asp-action="Index">Forum</a>
+                        </li>
+                    </ul>
+                </div>
             </div>
-
-            @*<div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-            <ul class="navbar-nav flex-grow-1">
-            <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-            </li>
-            <li class="nav-item">
-            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-            </li>
-            </ul>
-            </div>*@
             @*@if (Context.Items["authUser"] is User authUser)*@
-            @if(Context.User.Identity is not null &&
+            @if (Context.User.Identity is not null &&
             Context.User.Identity.IsAuthenticated)
             {
 
                 String userAvatar = Context.User.Claims.First(c => c.Type == ClaimTypes.UserData).Value;
-                if(String.IsNullOrEmpty(userAvatar)) userAvatar = "no-avatar.png";
+                if (String.IsNullOrEmpty(userAvatar)) userAvatar = "no-avatar.png";
                 String userLogin = Context.User.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
                 String userConfirm = Context.User.Claims.First(c => c.Type == ClaimTypes.WindowsUserClaim).Value;
                 <a asp-controller="User" asp-action="Profile" asp-route-id="@userLogin" class="mx-3" title="Profile" width="16" height="16">
-                    @if(userConfirm != String.Empty)
+                    @if (userConfirm != String.Empty)
                     {
                         <img src="~/avatars/@(userAvatar)"
-                        alt="Ava"
-                        class="filter-color-mail-confirm"
-                        title="Непідтверджена пошта"
-                        style="max-width: 40px; max-height: 40px; border-radius: 50%; position:absolute;">
+                     alt="Ava"
+                     class="filter-color-mail-confirm"
+                     title="Непідтверджена пошта"
+                     style="max-width: 40px; max-height: 40px; border-radius: 50%; position:absolute;">
                     }
-                <img src="~/avatars/@(userAvatar)"
-                 alt="Ava"
-                 title="@userLogin"
-                 style="max-width: 40px; max-height: 40px; border-radius: 50%">
+                    <img src="~/avatars/@(userAvatar)"
+                     alt="Ava"
+                     title="@userLogin"
+                     style="max-width: 40px; max-height: 40px; border-radius: 50%">
                 </a>
                 <a asp-controller="User" asp-action="Logout" class="mx-3" title="Вийти">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
@@ -154,29 +156,29 @@
         }
 
 
-@*        //document.addEventListener("DOMContentLoaded", () => {
-        //    const LogoutButton = document.getElementById("Logout-button");
-        //    if (!LogoutButton) throw "Logout-button not found";
-        //    LogoutButton.addEventListener("click", LogoutButtonClick);
-        //});
+        @*        //document.addEventListener("DOMContentLoaded", () => {
+            //    const LogoutButton = document.getElementById("Logout-button");
+            //    if (!LogoutButton) throw "Logout-button not found";
+            //    LogoutButton.addEventListener("click", LogoutButtonClick);
+            //});
 
-        //function LogoutButtonClick() {
-        //    window.fetch("/User/Logout", {
-        //        method: "POST",
-        //        headers: {
-        //            "Content-Type": "application/x-www-form-urlencoded"
-        //        }
-        //    })
-        //        .then(r => r.text())
-        //        .then(t => {
-        //            console.log(t);
-        //            if (t === "OK") {
-        //                window.location.replace(window.location.origin);
-        //            }
-        //            else {
-        //            }
-        //        });
-        //}*@
+            //function LogoutButtonClick() {
+            //    window.fetch("/User/Logout", {
+            //        method: "POST",
+            //        headers: {
+            //            "Content-Type": "application/x-www-form-urlencoded"
+            //        }
+            //    })
+            //        .then(r => r.text())
+            //        .then(t => {
+            //            console.log(t);
+            //            if (t === "OK") {
+            //                window.location.replace(window.location.origin);
+            //            }
+            //            else {
+            //            }
+            //        });
+            //}*@
 
 
     </script>
