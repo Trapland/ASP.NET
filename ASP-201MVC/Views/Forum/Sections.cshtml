@@ -8,15 +8,15 @@
 
 </div>
 
-<div class="row">
+@*<div class="row">
     <div class="col col-8">
         @foreach (var Theme in Model.Themes)
         {
             @Html.DisplayFor(m => Theme, "ForumTheme")
         }
     </div>
-</div>
-
+</div>*@
+@ViewData["id"];
 @if (Model.UserCanCreate)
 {
     <div class="row">

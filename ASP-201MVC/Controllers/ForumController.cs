@@ -1,6 +1,8 @@
 ﻿using ASP_201MVC.Data;
 using ASP_201MVC.Models.Forum;
+using ASP_201MVC.Services.Transliteration;
 using ASP_201MVC.Services.Validation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.Metrics;
@@ -13,12 +15,14 @@ namespace ASP_201MVC.Controllers
         private readonly DataContext _dataContext;
         private readonly ILogger<ForumController> _logger;
         private readonly IValidationService _validationService;
+        private readonly ITransliterate _transliterate;
 
-        public ForumController(DataContext dataContext, ILogger<ForumController> logger, IValidationService validationService)
+        public ForumController(DataContext dataContext, ILogger<ForumController> logger, IValidationService validationService, ITransliterate transliterate)
         {
             _dataContext = dataContext;
             _logger = logger;
             _validationService = validationService;
+            _transliterate = transliterate;
         }
         private int _counter = 0;
 
@@ -107,8 +111,24 @@ namespace ASP_201MVC.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        //private static Guid currSectionId = new();
+        //public String IdChange(String id)
+        //{
+        //    if (Guid.TryParse(id, out currSectionId))
+        //    {
+        //        var currSection = _dataContext.Sections.FirstOrDefault(s => s.Id == currSectionId);
+        //        return _transliterate.transliterate(currSection.Title);
+        //    }
+        //    else
+        //    {
+        //        return id;
+        //    }
+        //}
+
         public ViewResult Sections([FromRoute] String id)
         {
+            //if(currSectionId == Guid.Empty)
+            //    Response.Redirect(IdChange(id));
             ForumSectionsModel model = new()
             {
                 UserCanCreate = HttpContext.User.Identity?.IsAuthenticated == true,
@@ -144,7 +164,7 @@ namespace ASP_201MVC.Controllers
                 HttpContext.Session.Remove("IsMessagePositive");
 
             }
-
+            ViewData["Id"] = id;
             return View(model);
         }
 
@@ -152,6 +172,7 @@ namespace ASP_201MVC.Controllers
         public RedirectToActionResult CreateTheme(ForumThemeFormModel formModel)
         {
             _logger.LogInformation("Title: {t}, Description: {d}", formModel.Title, formModel.Description);
+
             if (!_validationService.Validate(formModel.Title, ValidationTerms.NotEmpty) ||
                 !_validationService.Validate(formModel.Description, ValidationTerms.NotEmpty))
             {
@@ -184,6 +205,7 @@ namespace ASP_201MVC.Controllers
                     HttpContext.Session.SetInt32("IsMessagePositive", 0);
                 }
             }
+
             return RedirectToAction(nameof(Sections), new { id = formModel.SectionId });
         }
     }
