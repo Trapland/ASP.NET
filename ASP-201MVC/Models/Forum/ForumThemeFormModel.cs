@@ -11,5 +11,8 @@ namespace ASP_201MVC.Models.Forum
 
         [FromForm(Name = "section-id")]
         public string SectionId { get; set; } = null!;
+
+        [FromForm(Name = "avatar-id")]
+        public IFormFile? Avatar { get; set; } = null!;
     }
 }

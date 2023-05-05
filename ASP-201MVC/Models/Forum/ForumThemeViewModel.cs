@@ -10,6 +10,8 @@ namespace ASP_201MVC.Models.Forum
 
         public String SectionId { get; set; } = null!;
 
+        public String? AvatarUrl { get; set; } = null!;
+
         public String CreatedDtString { get; set; } = null!;
 
         public String UrlIdString { get; set; } = null!;

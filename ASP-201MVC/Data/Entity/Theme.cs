@@ -10,6 +10,8 @@
 
         public String Description { get; set; } = null!;
 
+        public String? ThemeImg { get; set; } = null!;
+
         public Guid AuthorId { get; set; }
 
         public DateTime CreatedDt { get; set; }

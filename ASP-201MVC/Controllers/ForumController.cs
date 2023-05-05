@@ -1,5 +1,6 @@
 ﻿using ASP_201MVC.Data;
 using ASP_201MVC.Models.Forum;
+using ASP_201MVC.Services.RandomImg;
 using ASP_201MVC.Services.Transliteration;
 using ASP_201MVC.Services.Validation;
 using Microsoft.AspNetCore.Http;
@@ -16,13 +17,15 @@ namespace ASP_201MVC.Controllers
         private readonly ILogger<ForumController> _logger;
         private readonly IValidationService _validationService;
         private readonly ITransliterate _transliterate;
+        private readonly IRandomImgName _randomImgService;
 
-        public ForumController(DataContext dataContext, ILogger<ForumController> logger, IValidationService validationService, ITransliterate transliterate)
+        public ForumController(DataContext dataContext, ILogger<ForumController> logger, IValidationService validationService, ITransliterate transliterate, IRandomImgName randomImgService)
         {
             _dataContext = dataContext;
             _logger = logger;
             _validationService = validationService;
             _transliterate = transliterate;
+            _randomImgService = randomImgService;
         }
         private int _counter = 0;
 
@@ -143,6 +146,7 @@ namespace ASP_201MVC.Controllers
                     CreatedDtString = DateTime.Today == t.CreatedDt.Date ? "Cьогодні " + t.CreatedDt.ToString("HH:mm") : t.CreatedDt.ToString("dd.MM.yyyy HH:mm"),
                     UrlIdString = t.Id.ToString(),
                     SectionId = t.SectionId.ToString(),
+                    AvatarUrl = $"/img/logos/{t.ThemeImg}"
                 })
                 .ToList()
             };
@@ -185,11 +189,25 @@ namespace ASP_201MVC.Controllers
             {
                 try
                 {
+                    String savedName;
+                    if (formModel.Avatar != null)
+                    {
+                        savedName = _randomImgService.RandomNameImg(formModel.Avatar.FileName);
+                        String folderName = "wwwroot/img/logos/";
+                        String path = folderName + savedName;
+                        using FileStream fs = new(path, FileMode.Create);
+                        formModel.Avatar.CopyTo(fs);
+                    }
+                    else
+                    {
+                        savedName = $"section{Random.Shared.Next(0,9)}.png";
+                    }
                     _dataContext.Themes.Add(new()
                     {
                         Id = Guid.NewGuid(),
                         Title = formModel.Title,
                         Description = formModel.Description,
+                        ThemeImg = savedName,
                         AuthorId = Guid.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value),  //userId
                         CreatedDt = DateTime.Now,
                         SectionId = Guid.Parse(formModel.SectionId)
