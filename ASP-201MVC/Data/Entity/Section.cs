@@ -14,5 +14,8 @@
 
         public DateTime? DeletedDt { get; set; }
 
+        public User Author { get; set; } = null!;
+
+
     }
 }
