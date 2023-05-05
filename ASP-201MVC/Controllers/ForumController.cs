@@ -50,7 +50,7 @@ namespace ASP_201MVC.Controllers
             {
                 model.CreateMessage = message;
                 model.IsMessagePositive = HttpContext.Session.GetInt32("IsMessagePositive") == 1;
-                if (/*model.IsMessagePositive == false*/ true)
+                if (model.IsMessagePositive == false)
                 {
                     model.FormModel = new()
                     {
@@ -65,6 +65,46 @@ namespace ASP_201MVC.Controllers
 
             }
             return View(model);
+        }
+
+        
+
+        [HttpPost]
+        public RedirectToActionResult CreateSection(ForumSectionFormModel formModel)
+        {
+            _logger.LogInformation("Title: {t}, Description: {d}", formModel.Title, formModel.Description);
+            if (!_validationService.Validate(formModel.Title, ValidationTerms.NotEmpty) ||
+                !_validationService.Validate(formModel.Description, ValidationTerms.NotEmpty))
+            {
+                HttpContext.Session.SetString("CreateSectionMessage", "Поля не можуть бути порожніми");
+                HttpContext.Session.SetInt32("IsMessagePositive", 0);
+                HttpContext.Session.SetString("SavedTitle", formModel.Title ?? String.Empty);
+                HttpContext.Session.SetString("SavedDescription", formModel.Description ?? String.Empty);
+            }
+            else
+            {
+                try
+                {
+                    _dataContext.Sections.Add(new()
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = formModel.Title,
+                        Description = formModel.Description,
+                        AuthorId = Guid.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value), //userId
+                        CreatedDt = DateTime.Now
+                    });
+                    _dataContext.SaveChanges();
+                    HttpContext.Session.SetString("CreateSectionMessage", "Додано успішно");
+                    HttpContext.Session.SetInt32("IsMessagePositive", 1);
+                }
+                catch
+                {
+                    HttpContext.Session.SetString("CreateSectionMessage", "Відмовлено в авторизації");
+                    HttpContext.Session.SetInt32("IsMessagePositive", 0);
+                }
+            }
+
+            return RedirectToAction(nameof(Index));
         }
 
         public ViewResult Sections([FromRoute] String id)
@@ -107,6 +147,7 @@ namespace ASP_201MVC.Controllers
 
             return View(model);
         }
+
         [HttpPost]
         public RedirectToActionResult CreateTheme(ForumThemeFormModel formModel)
         {
@@ -144,44 +185,6 @@ namespace ASP_201MVC.Controllers
                 }
             }
             return RedirectToAction(nameof(Sections), new { id = formModel.SectionId });
-        }
-
-        [HttpPost]
-        public RedirectToActionResult CreateSection(ForumSectionFormModel formModel)
-        {
-            _logger.LogInformation("Title: {t}, Description: {d}", formModel.Title, formModel.Description);
-            if (!_validationService.Validate(formModel.Title, ValidationTerms.NotEmpty) ||
-                !_validationService.Validate(formModel.Description, ValidationTerms.NotEmpty))
-            {
-                HttpContext.Session.SetString("CreateSectionMessage", "Поля не можуть бути порожніми");
-                HttpContext.Session.SetInt32("IsMessagePositive", 0);
-                HttpContext.Session.SetString("SavedTitle", formModel.Title ?? String.Empty);
-                HttpContext.Session.SetString("SavedDescription", formModel.Description ?? String.Empty);
-            }
-            else
-            {
-                try
-                {
-                    _dataContext.Sections.Add(new()
-                    {
-                        Id = Guid.NewGuid(),
-                        Title = formModel.Title,
-                        Description = formModel.Description,
-                        AuthorId = Guid.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value), //userId
-                        CreatedDt = DateTime.Now
-                    });
-                    _dataContext.SaveChanges();
-                    HttpContext.Session.SetString("CreateSectionMessage", "Додано успішно");
-                    HttpContext.Session.SetInt32("IsMessagePositive", 1);
-                }
-                catch
-                {
-                    HttpContext.Session.SetString("CreateSectionMessage", "Відмовлено в авторизації");
-                    HttpContext.Session.SetInt32("IsMessagePositive", 0);
-                }
-            }
-
-            return RedirectToAction(nameof(Index));
         }
     }
 }
