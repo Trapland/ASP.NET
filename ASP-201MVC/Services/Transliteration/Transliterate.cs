@@ -88,7 +88,7 @@ namespace ASP_201MVC.Services.Transliteration
                     output.Append(ch);
                 }
             }
-
+            output = output.Replace(' ', '-').Replace("+", "plus").Replace("?", "-");
             return output.ToString();
         }
     }

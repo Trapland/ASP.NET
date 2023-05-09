@@ -48,7 +48,7 @@ namespace ASP_201MVC.Controllers
                     LogoUrl = $"/img/logos/section{Counter}.png",
                     AuthorName = s.Author.IsNamePublic ? s.Author.Name : s.Author.Login,
                     CreatedDtString = DateTime.Today == s.CreatedDt.Date ? "Cьогодні " + s.CreatedDt.ToString("HH:mm") : s.CreatedDt.ToString("dd.MM.yyyy HH:mm"),
-                    UrlIdString = s.Id.ToString(),
+                    UrlIdString = s.UrlId ?? s.Id.ToString(),
                     AuthorAvatarUrl = s.Author.Avatar == null ? "/avatars/no-avatar.png" : $"/avatars/{s.Author.Avatar}"
                 })
                 .ToList()
@@ -92,13 +92,22 @@ namespace ASP_201MVC.Controllers
             {
                 try
                 {
+                    String trans = _transliterate.transliterate(formModel.Title);
+                    String urlId = trans;
+                    int n = 2;
+                    while(_dataContext.Sections.Where(s => s.UrlId == urlId).Count() > 0)
+                    {
+                        urlId = $"{trans}{n++}";
+                    }
+
                     _dataContext.Sections.Add(new()
                     {
                         Id = Guid.NewGuid(),
                         Title = formModel.Title,
                         Description = formModel.Description,
                         AuthorId = Guid.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value), //userId
-                        CreatedDt = DateTime.Now
+                        CreatedDt = DateTime.Now,
+                        UrlId = urlId
                     });
                     _dataContext.SaveChanges();
                     HttpContext.Session.SetString("CreateSectionMessage", "Додано успішно");
@@ -130,15 +139,25 @@ namespace ASP_201MVC.Controllers
 
         public ViewResult Sections([FromRoute] String id)
         {
+            Guid sectionId;
+            try
+            {
+                sectionId = Guid.Parse(id);
+            }
+            catch (Exception)
+            {
+                sectionId = _dataContext.Sections.First(s => s.UrlId == id).Id;
+            }
             //if(currSectionId == Guid.Empty)
             //    Response.Redirect(IdChange(id));
             ForumSectionsModel model = new()
             {
                 UserCanCreate = HttpContext.User.Identity?.IsAuthenticated == true,
-                SectionId = id,
+                SectionId = sectionId.ToString(),
                 Themes = _dataContext
                 .Themes
-                .Where(t => t.DeletedDt == null && t.SectionId == Guid.Parse(id))
+                .Include(t => t.Author)
+                .Where(t => t.DeletedDt == null && t.SectionId == sectionId)
                 .Select(t => new ForumThemeViewModel()
                 {
                     Title = t.Title,
@@ -146,7 +165,9 @@ namespace ASP_201MVC.Controllers
                     CreatedDtString = DateTime.Today == t.CreatedDt.Date ? "Cьогодні " + t.CreatedDt.ToString("HH:mm") : t.CreatedDt.ToString("dd.MM.yyyy HH:mm"),
                     UrlIdString = t.Id.ToString(),
                     SectionId = t.SectionId.ToString(),
-                    AvatarUrl = $"/img/logos/{t.ThemeImg}"
+                    AvatarUrl = $"/img/logos/{t.ThemeImg}",
+                    AuthorName = t.Author.IsNamePublic ? t.Author.Name : t.Author.Login,
+                    AuthorAvatarUrl = $"/avatars/{t.Author.Avatar ?? "no-avatar.png"}"
                 })
                 .ToList()
             };

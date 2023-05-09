@@ -14,6 +14,8 @@
 
         public DateTime? DeletedDt { get; set; }
 
+        public String? UrlId { get; set; }
+
         public User Author { get; set; } = null!;
 
 

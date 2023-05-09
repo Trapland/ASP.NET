@@ -103,3 +103,8 @@ a{
     filter: invert(18%) sepia(60%) saturate(4845%) hue-rotate(1deg) brightness(86%) contrast(111%);
     opacity: 0.25;
 }
+
+.ui-w-40 {
+    max-height: 40px;
+    max-width: 40px;
+}

@@ -15,5 +15,11 @@ namespace ASP_201MVC.Models.Forum
         public String CreatedDtString { get; set; } = null!;
 
         public String UrlIdString { get; set; } = null!;
+
+        // Author data
+
+        public String AuthorName { get; set; } = null!;
+
+        public String AuthorAvatarUrl { get; set; }
     }
 }
