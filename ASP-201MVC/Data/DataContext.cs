@@ -43,6 +43,11 @@ namespace ASP_201MVC.Data
                 .HasOne(s => s.Author) //Navy
                 .WithMany() //Empty
                 .HasForeignKey(s => s.AuthorId);
+
+            modelBuilder.Entity<Entity.Topic>()
+                .HasOne(s => s.Author) //Navy
+                .WithMany() //Empty
+                .HasForeignKey(s => s.AuthorId);
         }
     }
 }

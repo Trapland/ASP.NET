@@ -16,5 +16,7 @@
         public String AuthorName { get; set; } = null!;
 
         public String AuthorAvatarUrl { get; set; }
+
+        public String AuthorCreatedDt { get; set; } = null!;
     }
 }

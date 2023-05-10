@@ -3,11 +3,21 @@
 <div class="col">
     <div class="card h-100">
         <div class="card-header">
-            <h5 class="card-title">@Model.Title</h5>
+            <div class="media d-flex align-items-center">
+                <img src="@Model.AuthorAvatarUrl" class="d-block ui-w-40 rounded-circle mx-2" alt="">
+                <div class="media-body mx-2">
+                    <a asp-controller="User" asp-action="Profile" asp-route-id="@Model.AuthorName" data-abc="true">@Model.AuthorName</a>
+                    <div class="text-muted small">@Model.CreatedDtString</div>
+                </div>
+                <div class="ms-auto text-muted small mx-2">
+                    <div>Member since <strong>@Model.AuthorCreatedDt</strong></div>
+                    <div><strong>134</strong> posts</div>
+                </div>
+            </div>
         </div>
         <div class="card-body">
-            <h5 class="card-title">@Model.Description</h5>
-            @*<p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content.</p>*@
+            <h4 class="card-title"><strong>@Model.Title</strong></h4>
+            <p class="card-text">@Model.Description</p>
         </div>
     </div>
 </div>

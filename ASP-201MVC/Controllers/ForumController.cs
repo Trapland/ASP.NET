@@ -221,6 +221,7 @@ namespace ASP_201MVC.Controllers
                 ThemeId = id,
                 Topics = _dataContext
                 .Topics
+                .Include(t => t.Author)
                 .Where(t => t.DeletedDt == null && t.ThemeId == themeId)
                 .AsEnumerable()
                 .Select(t => new ForumTopicViewModel()
@@ -229,6 +230,9 @@ namespace ASP_201MVC.Controllers
                     Description =(t.Description.Length > 100 ? t.Description[..100] + "..." : t.Description),
                     UrlIdString = t.Id.ToString(),
                     CreatedDtString = DateTime.Today == t.CreatedDt.Date ? "Cьогодні " + t.CreatedDt.ToString("HH:mm") : t.CreatedDt.ToString("dd.MM.yyyy HH:mm"),
+                    AuthorName = t.Author.IsNamePublic ? t.Author.Name : t.Author.Login,
+                    AuthorAvatarUrl = $"/avatars/{t.Author.Avatar ?? "no-avatar.png"}",
+                    AuthorCreatedDt = t.Author.IsDatePublic ? t.Author.RegisterDt.ToString() : "Hidden"
 
                 })
                 .ToList()
