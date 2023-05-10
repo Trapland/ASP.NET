@@ -74,7 +74,7 @@ namespace ASP_201MVC.Controllers
             return View(model);
         }
 
-        
+
 
         [HttpPost]
         public RedirectToActionResult CreateSection(ForumSectionFormModel formModel)
@@ -95,7 +95,7 @@ namespace ASP_201MVC.Controllers
                     String trans = _transliterate.transliterate(formModel.Title);
                     String urlId = trans;
                     int n = 2;
-                    while(_dataContext.Sections.Where(s => s.UrlId == urlId).Count() > 0)
+                    while (_dataContext.Sections.Where(s => s.UrlId == urlId).Count() > 0)
                     {
                         urlId = $"{trans}{n++}";
                     }
@@ -167,7 +167,8 @@ namespace ASP_201MVC.Controllers
                     SectionId = t.SectionId.ToString(),
                     AvatarUrl = $"/img/logos/{t.ThemeImg}",
                     AuthorName = t.Author.IsNamePublic ? t.Author.Name : t.Author.Login,
-                    AuthorAvatarUrl = $"/avatars/{t.Author.Avatar ?? "no-avatar.png"}"
+                    AuthorAvatarUrl = $"/avatars/{t.Author.Avatar ?? "no-avatar.png"}",
+                    AuthorCreatedDt = t.Author.IsDatePublic ? t.Author.RegisterDt.ToString() : "Hidden"
                 })
                 .ToList()
             };
@@ -190,6 +191,68 @@ namespace ASP_201MVC.Controllers
 
             }
             ViewData["Id"] = id;
+            return View(model);
+        }
+
+        public IActionResult Themes([FromRoute] String id)
+        {
+            Guid themeId;
+
+            try
+            {
+                themeId = Guid.Parse(id);
+            }
+            catch (Exception)
+            {
+                themeId = Guid.Empty;
+            }
+
+            var theme = _dataContext.Themes.Find(themeId);
+
+            if(theme == null)
+            {
+                return NotFound();
+            }
+
+            ForumThemesModel model = new()
+            {
+                UserCanCreate = HttpContext.User.Identity?.IsAuthenticated == true,
+                Title = theme.Title,
+                ThemeId = id,
+                Topics = _dataContext
+                .Topics
+                .Where(t => t.DeletedDt == null && t.ThemeId == themeId)
+                .AsEnumerable()
+                .Select(t => new ForumTopicViewModel()
+                {
+                    Title = t.Title,
+                    Description =(t.Description.Length > 100 ? t.Description[..100] + "..." : t.Description),
+                    UrlIdString = t.Id.ToString(),
+                    CreatedDtString = DateTime.Today == t.CreatedDt.Date ? "Cьогодні " + t.CreatedDt.ToString("HH:mm") : t.CreatedDt.ToString("dd.MM.yyyy HH:mm"),
+
+                })
+                .ToList()
+            };
+
+            if (HttpContext.Session.GetString("CreateTopicMessage") is String message)
+            {
+                model.CreateMessage = message;
+                model.IsMessagePositive = HttpContext.Session.GetInt32("IsMessagePositive") == 1;
+                if (model.IsMessagePositive == false)
+                {
+                    model.FormModel = new()
+                    {
+                        Title = HttpContext.Session.GetString("SavedTitle")!,
+                        Description = HttpContext.Session.GetString("SavedDescription")!
+                    };
+                    HttpContext.Session.Remove("SavedTitle");
+                    HttpContext.Session.Remove("SavedDescription");
+                }
+                HttpContext.Session.Remove("CreateTopicMessage");
+                HttpContext.Session.Remove("IsMessagePositive");
+
+            }
+
             return View(model);
         }
 
@@ -221,7 +284,7 @@ namespace ASP_201MVC.Controllers
                     }
                     else
                     {
-                        savedName = $"section{Random.Shared.Next(0,9)}.png";
+                        savedName = $"section{Random.Shared.Next(0, 9)}.png";
                     }
                     _dataContext.Themes.Add(new()
                     {
@@ -246,6 +309,47 @@ namespace ASP_201MVC.Controllers
             }
 
             return RedirectToAction(nameof(Sections), new { id = formModel.SectionId });
+        }
+
+        [HttpPost]
+        public RedirectToActionResult CreateTopic(ForumTopicFormModel formModel)
+        {
+            _logger.LogInformation("Title: {t}, Description: {d}", formModel.Title, formModel.Description);
+
+            if (!_validationService.Validate(formModel.Title, ValidationTerms.NotEmpty) ||
+                !_validationService.Validate(formModel.Description, ValidationTerms.NotEmpty))
+            {
+                HttpContext.Session.SetString("CreateTopicMessage", "Поля не можуть бути порожніми");
+                HttpContext.Session.SetInt32("IsMessagePositive", 0);
+                HttpContext.Session.SetString("SavedTitle", formModel.Title ?? String.Empty);
+                HttpContext.Session.SetString("SavedDescription", formModel.Description ?? String.Empty);
+            }
+            else
+            {
+                try
+                {
+                    _dataContext.Topics.Add(new()
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = formModel.Title,
+                        Description = formModel.Description,
+                        AuthorId = Guid.Parse(HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value),  //userId
+                        CreatedDt = DateTime.Now,
+                        ThemeId = Guid.Parse(formModel.ThemeId)
+                    });
+                    _dataContext.SaveChanges();
+                    HttpContext.Session.SetString("CreateTopicMessage", "Додано успішно");
+                    HttpContext.Session.SetInt32("IsMessagePositive", 1);
+
+                }
+                catch
+                {
+                    HttpContext.Session.SetString("CreateTopicMessage", "Відмовлено в авторизації");
+                    HttpContext.Session.SetInt32("IsMessagePositive", 0);
+                }
+            }
+
+            return RedirectToAction(nameof(Themes), new {id = formModel.ThemeId});
         }
     }
 }
