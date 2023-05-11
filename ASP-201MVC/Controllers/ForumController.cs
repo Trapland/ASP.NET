@@ -289,13 +289,14 @@ namespace ASP_201MVC.Controllers
                 Posts = _dataContext
                 .Posts
                 .Include(p => p.Author)
+                .Include(p => p.Reply)
                 .Where(p => p.DeletedDt == null && p.TopicId == topicId)
                 .Select(p => new ForumPostViewModel
                 {
                     Content = p.Content,
                     CreatedDtString = DateTime.Today == p.CreatedDt.Date ? "Cьогодні " + p.CreatedDt.ToString("HH:mm") : p.CreatedDt.ToString("dd.MM.yyyy HH:mm"),
                     AuthorName = p.Author.IsNamePublic ? p.Author.Name : p.Author.Login,
-                    AuthorAvatarUrl = $"/avatars/{p.Author.Avatar ?? "no-avatar.png"}",
+                    AuthorAvatarUrl = $"/avatars/{p.Author.Avatar ?? "no-avatar.png"}"
                 }).ToList()
             };
             if (HttpContext.Session.GetString("CreatePostMessage") is String message)
