@@ -3,6 +3,7 @@ using System;
 using ASP_201MVC.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ASP_201MVC.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230511112443_post")]
+    partial class post
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,7 +43,7 @@ namespace ASP_201MVC.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EmailConfirmTokens", (string)null);
+                    b.ToTable("EmailConfirmTokens");
                 });
 
             modelBuilder.Entity("ASP_201MVC.Data.Entity.Post", b =>
@@ -72,7 +75,7 @@ namespace ASP_201MVC.Migrations
 
                     b.HasIndex("AuthorId");
 
-                    b.ToTable("Posts", (string)null);
+                    b.ToTable("Posts");
                 });
 
             modelBuilder.Entity("ASP_201MVC.Data.Entity.Rate", b =>
@@ -88,7 +91,7 @@ namespace ASP_201MVC.Migrations
 
                     b.HasKey("ItemId", "UserId");
 
-                    b.ToTable("Rates", (string)null);
+                    b.ToTable("Rates");
                 });
 
             modelBuilder.Entity("ASP_201MVC.Data.Entity.Section", b =>
@@ -121,7 +124,7 @@ namespace ASP_201MVC.Migrations
 
                     b.HasIndex("AuthorId");
 
-                    b.ToTable("Sections", (string)null);
+                    b.ToTable("Sections");
                 });
 
             modelBuilder.Entity("ASP_201MVC.Data.Entity.Theme", b =>
@@ -157,7 +160,7 @@ namespace ASP_201MVC.Migrations
 
                     b.HasIndex("AuthorId");
 
-                    b.ToTable("Themes", (string)null);
+                    b.ToTable("Themes");
                 });
 
             modelBuilder.Entity("ASP_201MVC.Data.Entity.Topic", b =>
@@ -190,7 +193,7 @@ namespace ASP_201MVC.Migrations
 
                     b.HasIndex("AuthorId");
 
-                    b.ToTable("Topics", (string)null);
+                    b.ToTable("Topics");
                 });
 
             modelBuilder.Entity("ASP_201MVC.Data.Entity.User", b =>
@@ -242,7 +245,7 @@ namespace ASP_201MVC.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("ASP_201MVC.Data.Entity.Post", b =>

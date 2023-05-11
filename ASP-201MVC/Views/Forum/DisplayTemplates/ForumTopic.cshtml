@@ -18,6 +18,8 @@
         <div class="card-body">
             <h4 class="card-title"><strong>@Model.Title</strong></h4>
             <p class="card-text">@Model.Description</p>
+            <a asp-action="Topics" asp-route-id="@Model.UrlIdString"
+            class="float-end">Обговорення</a>
         </div>
     </div>
 </div>
