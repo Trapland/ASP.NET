@@ -34,6 +34,12 @@ namespace ASP_201MVC.Controllers
             ViewData["authUser"] = HttpContext.Session.GetString("authUserId");
             return View();
         }
+
+        public ViewResult WebApi()
+        {
+            return View();
+        }
+
         public IActionResult Intro()
         {
             return View();
