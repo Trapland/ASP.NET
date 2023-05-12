@@ -293,10 +293,16 @@ namespace ASP_201MVC.Controllers
                 .Where(p => p.DeletedDt == null && p.TopicId == topicId)
                 .Select(p => new ForumPostViewModel
                 {
+                    IdString = p.Id.ToString(),
+                    UserCanCreate = HttpContext.User.Identity.IsAuthenticated == true,
                     Content = p.Content,
                     CreatedDtString = DateTime.Today == p.CreatedDt.Date ? "Cьогодні " + p.CreatedDt.ToString("HH:mm") : p.CreatedDt.ToString("dd.MM.yyyy HH:mm"),
                     AuthorName = p.Author.IsNamePublic ? p.Author.Name : p.Author.Login,
-                    AuthorAvatarUrl = $"/avatars/{p.Author.Avatar ?? "no-avatar.png"}"
+                    AuthorAvatarUrl = $"/avatars/{p.Author.Avatar ?? "no-avatar.png"}",
+                    Reply = p.Reply != null ? new ForumPostViewModel
+                    {
+                        Content = p.Reply.Content
+                    } : null
                 }).ToList()
             };
             if (HttpContext.Session.GetString("CreatePostMessage") is String message)

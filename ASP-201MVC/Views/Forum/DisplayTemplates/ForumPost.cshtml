@@ -15,19 +15,27 @@
                 <h5 class="h5 g-color-gray-dark-v1 mb-0">@Model.AuthorName</h5>
                 <span class="g-color-gray-dark-v4 g-font-size-12">@Model.CreatedDtString</span>
             </div>
-
+            @if (Model.Reply is not null)
+            {
+                <p style="background-color: gray">
+                    @Model.Reply.Content
+            </p>
+            }
             <p>
                 @Model.Content
             </p>
-
-            <ul class="list-inline d-sm-flex my-0">
-                <li class="list-inline-item ml-auto">
-                    <a class="u-link-v5 g-color-gray-dark-v4 g-color-primary--hover" href="#!">
-                        <i class="fa fa-reply g-pos-rel g-top-1 g-mr-3"></i>
-                        Reply
-                    </a>
-                </li>
-            </ul>
+            @if (Model.UserCanCreate)
+            {
+                <ul class="list-inline d-sm-flex my-0">
+                    <li class="list-inline-item ml-auto">
+                        <a id="reply" class="u-link-v5 g-color-gray-dark-v4 g-color-primary--hover" href="#!" data="@Model.IdString">
+                            <i class="fa fa-reply g-pos-rel g-top-1 g-mr-3"></i>
+                            Reply
+                        </a>
+                    </li>
+                </ul>
+            }
         </div>
     </div>
 </div>
+

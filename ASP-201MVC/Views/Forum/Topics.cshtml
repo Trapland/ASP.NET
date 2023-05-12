@@ -40,7 +40,7 @@
                         @(Model.FormModel is null ? "" : Model.FormModel.Content)</textarea>
                 </div>
                 <input type="hidden" name="topic-id" value="@Model.TopicId" />
-                <input type="hidden" name="reply-id" value="@(Model.FormModel is null ? "" : Model.FormModel.ReplyId)" />
+                <input type="hidden" id="reply-id" name="reply-id" value="" />
                 <button class="btn btn-success my-3" type="submit">Створити</button>
             </form>
             @if (Model.CreateMessage is not null)
@@ -50,3 +50,18 @@
         </div>
     </div>
 }
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const replies = document.querySelectorAll("[data]");
+        for (let reply of replies) {
+            reply.addEventListener("click", replyClick);
+        }
+    });
+
+    function replyClick(e) {
+        document.getElementById("reply-id").value = e.target.getAttribute("data");
+        console.log(document.getElementById("reply-id").value);
+    }
+</script>
