@@ -38,6 +38,7 @@ namespace ASP_201MVC.Controllers
                 UserCanCreate = HttpContext.User.Identity?.IsAuthenticated == true,
                 Sections = _dataContext.Sections
                 .Include(s => s.Author)
+                .Include(s => s.RateList)
                 .Where(s => s.DeletedDt == null)
                 .OrderByDescending(s => s.CreatedDt)
                 .AsEnumerable() // IQueriable -> IEnumerable
@@ -49,7 +50,10 @@ namespace ASP_201MVC.Controllers
                     AuthorName = s.Author.IsNamePublic ? s.Author.Name : s.Author.Login,
                     CreatedDtString = DateTime.Today == s.CreatedDt.Date ? "Cьогодні " + s.CreatedDt.ToString("HH:mm") : s.CreatedDt.ToString("dd.MM.yyyy HH:mm"),
                     UrlIdString = s.UrlId ?? s.Id.ToString(),
-                    AuthorAvatarUrl = s.Author.Avatar == null ? "/avatars/no-avatar.png" : $"/avatars/{s.Author.Avatar}"
+                    AuthorAvatarUrl = s.Author.Avatar == null ? "/avatars/no-avatar.png" : $"/avatars/{s.Author.Avatar}",
+                    // Rating data
+                    LikesCount = s.RateList.Count(r => r.Rating > 0),
+                    DislikesCount = s.RateList.Count(r => r.Rating < 0),
                 })
                 .ToList()
             };

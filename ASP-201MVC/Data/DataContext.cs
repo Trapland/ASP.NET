@@ -58,6 +58,11 @@ namespace ASP_201MVC.Data
                 .HasOne(p => p.Reply) //Navy
                 .WithMany() //Empty
                 .HasForeignKey(p => p.ReplyId);
+
+            modelBuilder.Entity<Entity.Section>()
+                .HasMany(s => s.RateList)
+                .WithOne()
+                .HasForeignKey(r => r.ItemId);
         }
     }
 }
