@@ -23,5 +23,13 @@ namespace ASP_201MVC.Models.Forum
         public String AuthorAvatarUrl { get; set; }
 
         public String AuthorCreatedDt { get; set; } = null!;
+
+        // Rating data
+
+        public int LikesCount { get; set; }
+
+        public int DislikesCount { get; set; }
+
+        public int? GivenRating { get; set; }
     }
 }

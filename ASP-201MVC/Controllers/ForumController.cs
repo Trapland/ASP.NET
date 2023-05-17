@@ -1,4 +1,5 @@
 ﻿using ASP_201MVC.Data;
+using ASP_201MVC.Data.Entity;
 using ASP_201MVC.Models.Forum;
 using ASP_201MVC.Services.RandomImg;
 using ASP_201MVC.Services.Transliteration;
@@ -33,6 +34,7 @@ namespace ASP_201MVC.Controllers
 
         public IActionResult Index()
         {
+            String? userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
             ForumIndexModel model = new()
             {
                 UserCanCreate = HttpContext.User.Identity?.IsAuthenticated == true,
@@ -45,6 +47,7 @@ namespace ASP_201MVC.Controllers
                 .Select(s => new ForumSectionViewModel()
                 {
                     Title = s.Title,
+                    Id = s.Id.ToString(),
                     Description = s.Description,
                     LogoUrl = $"/img/logos/section{Counter}.png",
                     AuthorName = s.Author.IsNamePublic ? s.Author.Name : s.Author.Login,
@@ -54,6 +57,7 @@ namespace ASP_201MVC.Controllers
                     // Rating data
                     LikesCount = s.RateList.Count(r => r.Rating > 0),
                     DislikesCount = s.RateList.Count(r => r.Rating < 0),
+                    GivenRating = userId == null ? null : s.RateList.FirstOrDefault(r => r.UserId == Guid.Parse(userId))?.Rating,
                 })
                 .ToList()
             };
@@ -152,6 +156,7 @@ namespace ASP_201MVC.Controllers
             {
                 sectionId = _dataContext.Sections.First(s => s.UrlId == id).Id;
             }
+            String? userId = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Sid)?.Value;
             //if(currSectionId == Guid.Empty)
             //    Response.Redirect(IdChange(id));
             ForumSectionsModel model = new()
@@ -161,7 +166,9 @@ namespace ASP_201MVC.Controllers
                 Themes = _dataContext
                 .Themes
                 .Include(t => t.Author)
+                .Include(t => t.RateList)
                 .Where(t => t.DeletedDt == null && t.SectionId == sectionId)
+                .AsEnumerable() // IQueriable -> IEnumerable
                 .Select(t => new ForumThemeViewModel()
                 {
                     Title = t.Title,
@@ -172,7 +179,12 @@ namespace ASP_201MVC.Controllers
                     AvatarUrl = $"/img/logos/{t.ThemeImg}",
                     AuthorName = t.Author.IsNamePublic ? t.Author.Name : t.Author.Login,
                     AuthorAvatarUrl = $"/avatars/{t.Author.Avatar ?? "no-avatar.png"}",
-                    AuthorCreatedDt = t.Author.IsDatePublic ? t.Author.RegisterDt.ToString() : "Hidden"
+                    AuthorCreatedDt = t.Author.IsDatePublic ? t.Author.RegisterDt.ToString() : "Hidden",
+                    // Rating data
+                    LikesCount = t.RateList.Count(r => r.Rating > 0),
+                    DislikesCount = t.RateList.Count(r => r.Rating < 0),
+                    GivenRating = userId == null ? null : t.RateList.FirstOrDefault(r => r.UserId == Guid.Parse(userId))?.Rating,
+
                 })
                 .ToList()
             };
@@ -227,6 +239,7 @@ namespace ASP_201MVC.Controllers
                 Topics = _dataContext
                 .Topics
                 .Include(t => t.Author)
+
                 .Where(t => t.DeletedDt == null && t.ThemeId == themeId)
                 .AsEnumerable()
                 .Select(t => new ForumTopicViewModel()

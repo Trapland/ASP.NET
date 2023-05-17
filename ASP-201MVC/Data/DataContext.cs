@@ -63,6 +63,11 @@ namespace ASP_201MVC.Data
                 .HasMany(s => s.RateList)
                 .WithOne()
                 .HasForeignKey(r => r.ItemId);
+
+            modelBuilder.Entity<Entity.Theme>()
+                .HasMany(t => t.RateList)
+                .WithOne()
+                .HasForeignKey(r => r.ItemId);
         }
     }
 }

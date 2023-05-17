@@ -12,6 +12,9 @@
 
         public String UrlIdString { get; set; } = null!;
 
+        public String Id { get; set; } = null!;
+
+
 
         // Another data
 
@@ -25,5 +28,6 @@
 
         public int DislikesCount { get; set; }
 
+        public int? GivenRating { get; set; }
     }
 }

@@ -19,5 +19,8 @@
         public DateTime? DeletedDt { get; set; }
 
         public User Author { get; set; } = null!;
+
+        public List<Rate> RateList { get; set; } = null!;
+
     }
 }
